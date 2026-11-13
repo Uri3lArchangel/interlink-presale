@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#151515">
+<title>Interlink Presale</title>
+<link rel="stylesheet" href="store.css">
+<script src="store.js" defer></script>
+</head>
+<body id="top">
+<header class="bar">
+  <a class="brand" href="#top"><svg class="brand-mark" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="6" fill="#1761e8"/><path d="M14 7 7 20h14Z" fill="none" stroke="white" stroke-width="1.5"/><g fill="white"><circle cx="14" cy="7" r="2.5"/><circle cx="7" cy="20" r="2.5"/><circle cx="21" cy="20" r="2.5"/></g></svg> INTERLINK</a>
+  <nav aria-label="Catalog"><a href="#routers">Routers</a><a href="#powerbanks">PowerBanks</a></nav>
+  <button id="cart" class="cart">Cart <span id="count">0</span></button>
+</header>
+<main>
+  <section class="hero">
+    <div class="hero-copy"><div class="eyebrow"><i></i> HARDWARE PRESALE</div>
+    <h1>Interlink<span>.</span></h1>
+    <a class="primary hero-link" href="#routers">Shop presale <span aria-hidden="true">↘</span></a></div>
+    <div class="hero-products">
+      <img class="hero-desktop" src="tier1.webp" alt="Interlink Tier 1 Router with four antennas" width="768" height="768" fetchpriority="high">
+      <img class="hero-rooftop" src="tier2-pro.webp" alt="Interlink Tier 2 Rooftop Node Pro on its mast" width="764" height="1024">
+    </div>
+  </section>
+  <section class="catalog" id="routers"><h2>Routers</h2><div class="grid" id="router-grid"></div></section>
+  <section class="catalog" id="powerbanks"><h2>PowerBanks</h2><div class="grid power-grid" id="power-grid"></div></section>
+</main>
+<footer><a class="brand" href="#top"><svg class="brand-mark" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="6" fill="#1761e8"/><path d="M14 7 7 20h14Z" fill="none" stroke="white" stroke-width="1.5"/><g fill="white"><circle cx="14" cy="7" r="2.5"/><circle cx="7" cy="20" r="2.5"/><circle cx="21" cy="20" r="2.5"/></g></svg> INTERLINK</a><a href="#top">Back to top ↑</a></footer>
+<div id="status" role="status" class="toast" hidden></div>
+<dialog id="checkout" aria-labelledby="panel-title">
+  <header class="panel-header"><h2 id="panel-title">Your cart</h2><button id="close" aria-label="Close checkout">×</button></header>
+  <div id="panel"></div>
+</dialog>
+</body>
+</html>
+
