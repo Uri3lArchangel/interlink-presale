@@ -12,7 +12,7 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakart
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: "Interlink presale", template: "%s | Interlink" },
-  description: "Reserve Interlink routers, rooftop nodes and PowerBanks from the first production run.",
+  description: "Reserve Interlink routers, rooftop nodes and PowerBanks from the first batch.",
   openGraph: { title: "Interlink presale", images: ["/products/tier2-pro.webp"] },
 };
 

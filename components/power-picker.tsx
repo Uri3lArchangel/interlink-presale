@@ -48,7 +48,7 @@ export function PowerPicker() {
                 key={b.id}
                 aria-pressed={n === i}
                 onClick={() => setI(n)}
-                aria-label={`${b.capacity!.toLocaleString("en-NG")} mAh`}
+                aria-label={`${b.capacity! / 1000}K PowerBank`}
               >
                 <b>{b.capacity! / 1000}K</b>
               </button>
