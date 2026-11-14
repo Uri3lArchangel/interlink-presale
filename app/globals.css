@@ -11,10 +11,11 @@
   --tile: #0b0b0c;
   --on-dark: #f5f5f7;
   --on-dark-2: #a1a1a6;
-  --blue: #1761e8;
-  --blue-hover: #0f55d4;
-  --link: #1761e8;
-  --link-dark: #4d94ff;
+  /* Interlink brand blue, from the app icon */
+  --blue: #1e5aa8;
+  --blue-hover: #184c90;
+  --link: #1e5aa8;
+  --link-dark: #5b9cf0;
   --led: #ff9f0a;
   --ok: #1d9a4e;
   --danger: #c4301c;

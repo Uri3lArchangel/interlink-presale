@@ -7,15 +7,18 @@ import { usePathname } from "next/navigation";
 import { MAX_QTY, formatNaira } from "@/lib/catalog";
 import { useCart } from "./cart";
 
-/** Three linked nodes, one lit: the network with a device on it. */
-export function Mark({ size = 24 }: { size?: number }) {
+/**
+ * The Interlink mark, taken from the Interlink Android app's launcher icon
+ * (three mesh nodes joined by links on brand blue #1E5AA8), cropped to the icon's visible area.
+ */
+export function Mark({ size = 26 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <rect width="24" height="24" rx="7" fill="currentColor" />
-      <path d="M12 6.5 6.8 16h10.4Z" fill="none" stroke="var(--page, #e4e5e1)" strokeWidth="1.3" opacity=".6" />
-      <circle cx="12" cy="6.5" r="2" fill="var(--page, #e4e5e1)" />
-      <circle cx="6.8" cy="16" r="2" fill="var(--page, #e4e5e1)" />
-      <circle cx="17.2" cy="16" r="2" fill="#1761e8" />
+    <svg width={size} height={size} viewBox="14 14 80 80" aria-hidden="true">
+      <rect x="14" y="14" width="80" height="80" rx="20" fill="#1E5AA8" />
+      <path d="M54 30 34 70h40Z" fill="none" stroke="#fff" strokeWidth="4" strokeLinejoin="round" />
+      <circle cx="54" cy="30" r="7" fill="#fff" />
+      <circle cx="34" cy="70" r="7" fill="#fff" />
+      <circle cx="74" cy="70" r="7" fill="#fff" />
     </svg>
   );
 }

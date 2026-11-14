@@ -114,10 +114,10 @@ export default function Home() {
           title="Tier 2 Rooftop Node"
           tagline="Carries the network down the street."
         />
-        <Family standard="tier1" pro="tier1-pro" title="Tier 1 Router" tagline="The network, at your desk." />
+        <Family standard="tier1" pro="tier1-pro" title="Tier 1 Router" tagline="Stay connected even without the internet." />
         <article className="case tile">
           <h3 className="h3">Personal PowerBank</h3>
-          <p className="lede">Five sizes. One fingerprint.</p>
+          <p className="lede">Prevent unauthorized access to your power bank.</p>
           <div className="tile-buy" style={{ marginTop: 22 }}>
             <span className="price">From {formatNaira(banks[0].price)}</span>
             <Link href="#power" className="btn btn-primary">

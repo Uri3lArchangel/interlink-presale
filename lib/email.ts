@@ -28,7 +28,7 @@ export function confirmationEmail(order: Order) {
       <span style="color:#ebece8;font-size:18px;font-weight:700;letter-spacing:-0.01em">Interlink</span>
     </td></tr>
     <tr><td style="padding:40px 36px 8px">
-      <p style="margin:0 0 6px;font-size:14px;color:#1761e8;font-weight:600">Payment received</p>
+      <p style="margin:0 0 6px;font-size:14px;color:#1e5aa8;font-weight:600">Payment received</p>
       <h1 style="margin:0 0 16px;font-weight:700;font-size:28px;letter-spacing:-0.02em;line-height:1.2;color:#1c1e21">Your reservation is confirmed, ${esc(order.customer.firstName)}.</h1>
       <p style="margin:0;font-size:15px;line-height:1.6;color:#4b5056">We have received ${formatKobo(order.paidKobo)} and secured your place in the Interlink presale (${site.presale.batch}). Keep this email: your order number is how we find your reservation.</p>
     </td></tr>
@@ -48,7 +48,7 @@ export function confirmationEmail(order: Order) {
       <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5056">${esc(order.customer.firstName)} ${esc(order.customer.lastName)}<br>${address}</p>
     </td></tr>
     <tr><td style="padding:32px 36px">
-      <a href="${orderUrl}" style="display:inline-block;background:#1761e8;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 24px;border-radius:999px">View your order</a>
+      <a href="${orderUrl}" style="display:inline-block;background:#1e5aa8;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 24px;border-radius:999px">View your order</a>
     </td></tr>
     <tr><td style="padding:0 36px 36px;font-size:12px;line-height:1.6;color:#636970;border-top:1px solid #d8dad5">
       <p style="margin:20px 0 0">This is a presale order. The dispatch date is an estimate and may change; we will email you before your order ships. Your purchase is governed by the <a href="${site.url}/terms" style="color:#636970">Terms of Sale</a> (version ${site.termsVersion}) you accepted at checkout, including your right to cancel before dispatch.</p>
