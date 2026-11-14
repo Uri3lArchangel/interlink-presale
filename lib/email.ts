@@ -1,4 +1,5 @@
 import "server-only";
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { formatKobo, formatNaira } from "./catalog";
 import { site } from "./site";
@@ -74,11 +75,36 @@ export function confirmationEmail(order: Order) {
   return { subject: `Order ${order.id} confirmed: Interlink presale`, html, text };
 }
 
+/**
+ * Sends the confirmation. Gmail (GMAIL_USER + GMAIL_APP_PASSWORD) wins when set, so the store can
+ * email customers without owning a domain. Otherwise Resend, which needs a verified domain to reach
+ * customers. With neither, development prints the email and production throws so the send is retried.
+ */
 export async function sendOrderConfirmation(order: Order) {
   const mail = confirmationEmail(order);
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
+  if (gmailUser && gmailPass) {
+    const transport = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: gmailUser, pass: gmailPass.replace(/\s+/g, "") },
+    });
+    await transport.sendMail({
+      // Gmail only sends as the signed-in account, so the address is always GMAIL_USER.
+      from: { name: site.name, address: gmailUser },
+      to: order.customer.email,
+      replyTo: site.supportEmail,
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text,
+      headers: { "X-Interlink-Order": order.id },
+    });
+    return;
+  }
+
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    if (process.env.NODE_ENV === "production") throw new Error("RESEND_API_KEY is not set");
+    if (process.env.NODE_ENV === "production") throw new Error("No email provider configured (GMAIL_USER/GMAIL_APP_PASSWORD or RESEND_API_KEY)");
     console.info(`[email] (dev, not sent) to ${order.customer.email}: ${mail.subject}\n${mail.text}`);
     return;
   }

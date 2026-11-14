@@ -24,7 +24,8 @@ Copy `.env.example` to `.env.local` (or your host's env settings) and fill in:
 | `POUCH_SECRET_KEY` | Pouch `sk_live_…` key |
 | `POUCH_WEBHOOK_SECRET` | Optional; see note below |
 | `UPSTASH_REDIS_REST_URL` / `_TOKEN` | Order storage (required in production) |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Confirmation emails; verify the sending domain in Resend |
+| `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Confirmation emails from a Gmail account (no domain needed) |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Alternative: confirmation emails via Resend; needs a verified domain |
 | `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPPORT_EMAIL` | Links and contact address |
 
 Then set your Pouch webhook URL to `https://<your-domain>/api/webhooks/pouch`.
