@@ -10,7 +10,7 @@ export const site = {
   rcNumber: "RC 9771887",
   // TODO: registered office address.
   address: "Lagos, Nigeria",
-  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@interlink.example",
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "info@interlinknetwork.link",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   presale: {
     batch: "Batch 01",
