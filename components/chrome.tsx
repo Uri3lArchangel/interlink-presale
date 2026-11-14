@@ -36,9 +36,13 @@ export function Header() {
           <Link href={href("power")}>PowerBanks</Link>
           <Link href={href("how")}>How paying works</Link>
           <Link href={href("faq")}>Questions</Link>
+          <Link href="/terms">Terms</Link>
         </nav>
         <button className="bag-btn" onClick={() => setOpen(true)} aria-label={`Bag, ${count} items`}>
-          Bag
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+            <path d="M3 5.5h12l-.8 10a1 1 0 0 1-1 .9H4.8a1 1 0 0 1-1-.9z" />
+            <path d="M6.2 5.5V4.6a2.8 2.8 0 0 1 5.6 0v.9" />
+          </svg>
           <span className="bag-count" data-full={ready && count > 0}>
             {ready ? count : 0}
           </span>

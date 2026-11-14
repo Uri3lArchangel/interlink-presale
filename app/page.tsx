@@ -28,101 +28,147 @@ const faqs = [
   },
 ];
 
-const lineup = [
-  { id: "tier1-pro", label: "Desk routers", from: 120000, href: "#routers" },
-  { id: "tier2-pro", label: "Rooftop nodes", from: 499999, href: "#routers", center: true },
-  { id: "power-3", label: "PowerBanks", from: 29000, href: "#power" },
+const Icon = ({ d }: { d: string }) => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d={d} />
+  </svg>
+);
+
+const reasons = [
+  {
+    title: "Presale price, locked",
+    body: "The price you pay today is the hardware price, even if retail goes up before launch.",
+    icon: "M8 18V12a12 12 0 0 1 24 0v6M6 18h28v16H6zM20 24v4",
+  },
+  {
+    title: "Cancel before dispatch",
+    body: "Changed your mind? Cancel any time before your dispatch notice for a full refund.",
+    icon: "M8 20a12 12 0 1 0 4-9M8 6v6h6",
+  },
+  {
+    title: "Pay by bank transfer",
+    body: "No card needed. You get an account number made for your order alone.",
+    icon: "M5 16h30M8 16v14M16 16v14M24 16v14M32 16v14M4 34h32M20 4 4 12h32Z",
+  },
+  {
+    title: "First production run",
+    body: `${site.presale.batch} ships from an estimated ${site.presale.estimatedDispatch}, ahead of general sale.`,
+    icon: "M4 30h22M26 30V14h6l4 8v8h-10M4 12h22v18M10 34a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM30 34a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+  },
 ];
 
 export default function Home() {
+  const hero = productById("tier2-pro")!;
   return (
     <>
-      <section className="hero">
+      <section className="hero dark">
         <div className="wrap">
-          <div className="hero-top">
-            <h1 className="h1">Hardware for the Interlink network</h1>
-            <div className="hero-side">
-              <p className="lede">
-                Reserve routers, rooftop nodes and PowerBanks from the first production run, at presale prices.
-              </p>
-              <div className="hero-actions">
-                <Link href="#routers" className="btn btn-primary">
-                  Shop the presale
-                </Link>
-                <Link href="#how" className="btn btn-quiet">
-                  How paying works
-                </Link>
-              </div>
+          <p className="kicker">Presale now open</p>
+          <h1 className="h1">
+            The network,
+            <br />
+            in your hands.
+          </h1>
+          <p className="lede">
+            Routers, rooftop nodes and PowerBanks for the Interlink network. Reserve yours from the first production run.
+          </p>
+          <div className="actions">
+            <Link href="#routers" className="btn btn-primary">
+              Shop the presale
+            </Link>
+            <Link href="#how" className="more">
+              How paying works
+            </Link>
+          </div>
+          <Image
+            className="hero-img"
+            src={hero.image}
+            alt={`${hero.name}, concept render`}
+            width={764}
+            height={1024}
+            priority
+            sizes="(max-width: 700px) 86vw, 560px"
+          />
+          <dl className="hero-facts">
+            <div>
+              <dt>Batch</dt>
+              <dd>01</dd>
             </div>
-          </div>
-
-          <div className="case lineup">
-            {lineup.map((item) => {
-              const p = productById(item.id)!;
-              const tall = item.id.startsWith("tier2");
-              return (
-                <a key={item.id} href={item.href} className={item.center ? "center" : undefined}>
-                  <Image
-                    className="case-img"
-                    src={p.image}
-                    alt={`${p.name}, concept render`}
-                    width={tall ? 764 : 768}
-                    height={tall ? 1024 : 768}
-                    priority
-                    sizes="(max-width: 560px) 50vw, 30vw"
-                  />
-                  <span className="placard">
-                    <strong>{item.label}</strong>
-                    <span>From {formatNaira(item.from)}</span>
-                  </span>
-                </a>
-              );
-            })}
-          </div>
+            <div>
+              <dt>Est. dispatch</dt>
+              <dd>{site.presale.estimatedDispatch}</dd>
+            </div>
+            <div>
+              <dt>From</dt>
+              <dd>{formatNaira(29000)}</dd>
+            </div>
+          </dl>
         </div>
       </section>
 
-      <section className="section" id="routers">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 className="h2">Routers and rooftop nodes</h2>
-            <p className="lede">
-              A desk router serves a home or office. A rooftop node carries the network down the street. Each comes in a standard and a
-              Pro model.
-            </p>
+      <section id="routers" className="wrap tiles" aria-label="Routers and rooftop nodes">
+        <Family
+          wide
+          standard="tier2"
+          pro="tier2-pro"
+          title="Tier 2 Rooftop Node"
+          tagline="Carries the network down the street."
+        />
+        <Family standard="tier1" pro="tier1-pro" title="Tier 1 Router" tagline="The network, at your desk." />
+        <article className="case tile">
+          <h3 className="h3">Personal PowerBank</h3>
+          <p className="lede">Five sizes. One fingerprint.</p>
+          <div className="tile-buy" style={{ marginTop: 22 }}>
+            <span className="price">From {formatNaira(29000)}</span>
+            <Link href="#power" className="btn btn-primary">
+              Choose a size
+            </Link>
           </div>
-          <div className="families">
-            <Family
-              standard="tier1"
-              pro="tier1-pro"
-              title="Tier 1 Router"
-              intro="For the desk at home or in a small office."
-            />
-            <Family
-              standard="tier2"
-              pro="tier2-pro"
-              title="Tier 2 Rooftop Node"
-              intro="Weather-sealed and pole-mounted, for the roof."
+          <div className="tile-media">
+            <Image
+              className="case-img"
+              src="/products/power-3.webp"
+              alt="Personal PowerBank, concept render"
+              width={512}
+              height={512}
+              sizes="(max-width: 860px) 90vw, 40vw"
             />
           </div>
-        </div>
+        </article>
       </section>
 
       <section className="section" id="power">
         <div className="wrap">
           <div className="section-head">
-            <h2 className="h2">PowerBanks</h2>
-            <p className="lede">Five capacities in one design. Pick a size, then see how many times it charges your phone.</p>
+            <h2 className="h2">Which PowerBank is right for you?</h2>
+            <p className="lede">Pick a capacity, set your phone’s battery, and see how many full charges you get.</p>
           </div>
           <PowerPicker />
+        </div>
+      </section>
+
+      <section className="section grey">
+        <div className="wrap">
+          <div className="section-head" style={{ textAlign: "left", marginLeft: 0 }}>
+            <h2 className="h2">Why reserve now.</h2>
+          </div>
+          <div className="reasons">
+            {reasons.map((r) => (
+              <div className="reason" key={r.title}>
+                <Icon d={r.icon} />
+                <h3>{r.title}</h3>
+                <p>{r.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="section" id="how">
         <div className="wrap">
           <div className="section-head">
-            <h2 className="h2">How paying works</h2>
-            <p className="lede">One bank transfer reserves your hardware. There are no cards and no third-party checkout pages.</p>
+            <h2 className="h2">How paying works.</h2>
+            <p className="lede">One bank transfer reserves your hardware.</p>
           </div>
           <ol className="steps">
             <li>
@@ -138,27 +184,21 @@ export default function Home() {
             </li>
             <li>
               <h3>Get your order number</h3>
-              <p>
-                We confirm by email as soon as the money lands. We’ll write again before your order ships.
-              </p>
+              <p>We confirm by email as soon as the money lands, and write again before your order ships.</p>
             </li>
           </ol>
         </div>
       </section>
 
-      <section className="section" id="faq">
+      <section className="section grey" id="faq">
         <div className="wrap faq">
-          <div>
-            <h2 className="h2">Questions</h2>
-            <p className="lede" style={{ marginTop: 20 }}>
+          <div className="section-head">
+            <h2 className="h2">Questions? Answers.</h2>
+            <p className="lede">
               The full details are in the{" "}
               <Link className="link" href="/terms">
                 Terms of Sale
               </Link>
-              . Anything else, write to{" "}
-              <a className="link" href={`mailto:${site.supportEmail}`}>
-                {site.supportEmail}
-              </a>
               .
             </p>
           </div>
@@ -170,6 +210,13 @@ export default function Home() {
               </details>
             ))}
           </div>
+          <p className="small" style={{ marginTop: 32, textAlign: "center" }}>
+            Still have a question? Email{" "}
+            <a className="link" href={`mailto:${site.supportEmail}`}>
+              {site.supportEmail}
+            </a>
+            .
+          </p>
         </div>
       </section>
     </>

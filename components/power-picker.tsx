@@ -15,8 +15,8 @@ export function PowerPicker() {
   const cells = Math.ceil(charges);
 
   return (
-    <div className="case power">
-      <div className="power-media">
+    <div className="power">
+      <div className="case power-media">
         {banks.map((b, n) => (
           <Image
             key={b.id}
@@ -27,24 +27,26 @@ export function PowerPicker() {
             data-on={n === i}
             width={512}
             height={512}
-            sizes="(max-width: 860px) 80vw, 40vw"
+            sizes="(max-width: 900px) 80vw, 45vw"
           />
         ))}
       </div>
       <div className="power-body">
         <div>
-          <h3 className="h3">Personal PowerBank</h3>
-          <p className="small" style={{ marginTop: 8 }}>
-            A fingerprint lock keeps it yours, and the display shows exactly how much charge is left.
-          </p>
-        </div>
-        <div className="caps" role="group" aria-label="Capacity">
-          {banks.map((b, n) => (
-            <button key={b.id} aria-pressed={n === i} onClick={() => setI(n)} aria-label={`${b.capacity!.toLocaleString("en-NG")} mAh`}>
-              <b>{b.capacity! / 1000}K</b>
-              <span>mAh</span>
-            </button>
-          ))}
+          <p className="opt-label">Capacity</p>
+          <div className="caps" role="group" aria-label="Capacity">
+            {banks.map((b, n) => (
+              <button
+                key={b.id}
+                aria-pressed={n === i}
+                onClick={() => setI(n)}
+                aria-label={`${b.capacity!.toLocaleString("en-NG")} mAh`}
+              >
+                <b>{b.capacity! / 1000}K</b>
+                <span>mAh</span>
+              </button>
+            ))}
+          </div>
         </div>
         <label className="phone-row">
           <span className="head">
