@@ -12,50 +12,107 @@ export function confirmationEmail(order: Order) {
   const orderUrl = `${site.url}/order/${order.id}?t=${order.token}`;
   const a = order.customer.address;
   const address = [a.line1, a.line2, `${a.city}, ${a.state}`, a.postcode].filter(Boolean).map((x) => esc(x!)).join("<br>");
+  const font = "-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif";
+  const ink = "#1d1d1f";
+  const grey = "#6e6e73";
+  const rule = "#e8e8ed";
+  const blue = "#1e5aa8";
+  // JPG/PNG copies in public/email: many mail clients can't show the site's WebP images.
+  const asset = (p: string) => `${site.url}/email/${p}`;
+
   const rows = order.lines
     .map(
       (l) => `<tr>
-        <td style="padding:14px 0;border-bottom:1px solid #d8dad5;font-size:14px;color:#1c1e21">${esc(l.name)}<br><span style="color:#636970;font-size:12px">Qty ${l.quantity} × ${formatNaira(l.unitPrice)}</span></td>
-        <td style="padding:14px 0;border-bottom:1px solid #d8dad5;font-size:14px;color:#1c1e21;text-align:right;white-space:nowrap">${formatNaira(l.unitPrice * l.quantity)}</td>
+        <td width="64" style="padding:14px 0;border-bottom:1px solid ${rule};vertical-align:middle">
+          <img src="${asset(`${l.id}.jpg`)}" width="56" height="56" alt="" style="display:block;border-radius:12px;background:#0b0b0c">
+        </td>
+        <td style="padding:14px 12px;border-bottom:1px solid ${rule};vertical-align:middle;font-family:${font}">
+          <div style="font-size:15px;font-weight:600;color:${ink};line-height:1.3">${esc(l.name)}</div>
+          <div style="font-size:13px;color:${grey};margin-top:2px">Qty ${l.quantity}${l.quantity > 1 ? ` · ${formatNaira(l.unitPrice)} each` : ""}</div>
+        </td>
+        <td style="padding:14px 0;border-bottom:1px solid ${rule};vertical-align:middle;text-align:right;white-space:nowrap;font-family:${font};font-size:15px;font-weight:600;color:${ink}">${formatNaira(l.unitPrice * l.quantity)}</td>
       </tr>`,
     )
     .join("");
 
-  const html = `<!doctype html><html><body style="margin:0;background:#e4e5e1;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e4e5e1;padding:40px 16px"><tr><td align="center">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #d8dad5">
-    <tr><td style="background:#141619;padding:24px 36px">
-      <span style="color:#ebece8;font-size:18px;font-weight:700;letter-spacing:-0.01em">Interlink</span>
-    </td></tr>
-    <tr><td style="padding:40px 36px 8px">
-      <p style="margin:0 0 6px;font-size:14px;color:#1e5aa8;font-weight:600">Payment received</p>
-      <h1 style="margin:0 0 16px;font-weight:700;font-size:28px;letter-spacing:-0.02em;line-height:1.2;color:#1c1e21">Your reservation is confirmed, ${esc(order.customer.firstName)}.</h1>
-      <p style="margin:0;font-size:15px;line-height:1.6;color:#4b5056">We have received ${formatKobo(order.paidKobo)} and secured your place in the Interlink presale (${site.presale.batch}). Keep this email: your order number is how we find your reservation.</p>
-    </td></tr>
-    <tr><td style="padding:28px 36px 8px">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef0ec;border:1px solid #d8dad5"><tr>
-        <td style="padding:18px 20px"><span style="font-size:11px;color:#636970">Order number</span><br><span style="font-size:22px;font-weight:700;color:#1c1e21;letter-spacing:.02em">${order.id}</span></td>
-        <td style="padding:18px 20px;text-align:right"><span style="font-size:11px;color:#636970">Estimated dispatch</span><br><span style="font-size:16px;color:#1c1e21">${esc(order.estimatedDispatch)}</span></td>
-      </tr></table>
-    </td></tr>
-    <tr><td style="padding:20px 36px 0">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}
-        <tr><td style="padding:16px 0 0;font-size:14px;color:#1c1e21;font-weight:600">Total paid</td><td style="padding:16px 0 0;font-size:16px;color:#1c1e21;font-weight:600;text-align:right">${formatKobo(order.paidKobo)}</td></tr>
-      </table>
-    </td></tr>
-    <tr><td style="padding:28px 36px 0">
-      <p style="margin:0 0 6px;font-size:11px;color:#636970">Shipping to</p>
-      <p style="margin:0;font-size:14px;line-height:1.6;color:#4b5056">${esc(order.customer.firstName)} ${esc(order.customer.lastName)}<br>${address}</p>
-    </td></tr>
-    <tr><td style="padding:32px 36px">
-      <a href="${orderUrl}" style="display:inline-block;background:#1e5aa8;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 24px;border-radius:999px">View your order</a>
-    </td></tr>
-    <tr><td style="padding:0 36px 36px;font-size:12px;line-height:1.6;color:#636970;border-top:1px solid #d8dad5">
-      <p style="margin:20px 0 0">This is a presale order. The dispatch date is an estimate and may change; we will email you before your order ships. Your purchase is governed by the <a href="${site.url}/terms" style="color:#636970">Terms of Sale</a> (version ${site.termsVersion}) you accepted at checkout, including your right to cancel before dispatch.</p>
-      <p style="margin:12px 0 0">Questions? Reply to this email or write to ${esc(site.supportEmail)} and quote ${order.id}.</p>
-      <p style="margin:12px 0 0">${esc(site.legalName)} · ${esc(site.rcNumber)} · ${esc(site.address)}</p>
-    </td></tr>
-  </table></td></tr></table></body></html>`;
+  const step = (title: string, body: string) => `<tr>
+      <td width="22" style="padding:0 0 14px;vertical-align:top"><div style="width:8px;height:8px;border-radius:50%;background:${blue};margin-top:7px"></div></td>
+      <td style="padding:0 0 14px;font-family:${font};font-size:14px;line-height:1.5;color:${grey}"><strong style="color:${ink};font-weight:600">${title}</strong> ${body}</td>
+    </tr>`;
+
+  const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>Order ${order.id} confirmed</title></head>
+<body style="margin:0;padding:0;background:#f5f5f7;-webkit-font-smoothing:antialiased">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0">Payment received. Order ${order.id} is confirmed, estimated dispatch ${esc(order.estimatedDispatch)}.</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7"><tr><td align="center" style="padding:40px 16px">
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
+      <tr><td align="center" style="padding:0 0 24px">
+        <img src="${asset("logo.png")}" width="44" height="44" alt="Interlink" style="display:block;border-radius:11px">
+      </td></tr>
+    </table>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:20px">
+      <tr><td align="center" style="padding:44px 40px 8px;font-family:${font}">
+        <div style="display:inline-block;padding:6px 12px;border-radius:999px;background:#e9f6ee;color:#1d7a43;font-size:13px;font-weight:600">&#10003;&nbsp; Payment received</div>
+        <h1 style="margin:18px 0 10px;font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-0.02em;color:${ink}">Thank you, ${esc(order.customer.firstName)}.</h1>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:${grey}">Your Interlink reservation is confirmed.<br>Keep this email: your order number is how we find it.</p>
+      </td></tr>
+
+      <tr><td style="padding:28px 40px 4px">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;border-radius:14px"><tr>
+          <td style="padding:18px 20px;font-family:${font}">
+            <div style="font-size:12px;color:${grey}">Order number</div>
+            <div style="font-size:20px;font-weight:700;color:${ink};letter-spacing:0.02em;margin-top:2px">${order.id}</div>
+          </td>
+          <td style="padding:18px 20px;text-align:right;font-family:${font}">
+            <div style="font-size:12px;color:${grey}">Estimated dispatch</div>
+            <div style="font-size:16px;font-weight:600;color:${ink};margin-top:2px">${esc(order.estimatedDispatch)}</div>
+          </td>
+        </tr></table>
+      </td></tr>
+
+      <tr><td style="padding:12px 40px 0">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${rows}
+          <tr>
+            <td colspan="2" style="padding:18px 0 0;font-family:${font};font-size:15px;color:${grey}">Total paid</td>
+            <td style="padding:18px 0 0;text-align:right;font-family:${font};font-size:20px;font-weight:700;letter-spacing:-0.01em;color:${ink}">${formatKobo(order.paidKobo)}</td>
+          </tr>
+        </table>
+      </td></tr>
+
+      <tr><td align="center" style="padding:32px 40px 8px">
+        <a href="${orderUrl}" style="display:inline-block;background:${blue};color:#ffffff;text-decoration:none;font-family:${font};font-size:16px;font-weight:600;padding:14px 28px;border-radius:999px">View your order</a>
+      </td></tr>
+
+      <tr><td style="padding:28px 40px 0"><div style="height:1px;background:${rule};line-height:1px;font-size:1px">&nbsp;</div></td></tr>
+
+      <tr><td style="padding:24px 40px 0;font-family:${font}">
+        <div style="font-size:15px;font-weight:700;color:${ink};margin-bottom:14px">What happens next</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          ${step("We build your hardware.", `${site.presale.batch} is estimated to dispatch in ${esc(order.estimatedDispatch)}. If that changes, we’ll email you.`)}
+          ${step("We confirm delivery.", "Before dispatch we’ll check your address and quote the delivery charge.")}
+          ${step("You can change your mind.", "Cancel any time before your dispatch notice for a full refund.")}
+        </table>
+      </td></tr>
+
+      <tr><td style="padding:10px 40px 40px;font-family:${font}">
+        <div style="font-size:12px;color:${grey};margin-bottom:4px">Delivering to</div>
+        <div style="font-size:14px;line-height:1.55;color:${ink}">${esc(order.customer.firstName)} ${esc(order.customer.lastName)}<br>${address}</div>
+      </td></tr>
+    </table>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
+      <tr><td align="center" style="padding:28px 24px 0;font-family:${font};font-size:12px;line-height:1.6;color:#86868b">
+        Questions? Reply to this email or write to <a href="mailto:${esc(site.supportEmail)}" style="color:#86868b">${esc(site.supportEmail)}</a> and quote ${order.id}.<br>
+        Your order is covered by the <a href="${site.url}/terms" style="color:#86868b">Terms of Sale</a> (version ${site.termsVersion}) you accepted at checkout.<br><br>
+        Interlink is a product of ${esc(site.legalName)}, ${esc(site.rcNumber)}, ${esc(site.address)}.
+      </td></tr>
+    </table>
+
+  </td></tr></table>
+</body></html>`;
 
   const text = [
     `Your Interlink reservation is confirmed, ${order.customer.firstName}.`,
