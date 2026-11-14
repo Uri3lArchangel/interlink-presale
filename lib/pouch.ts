@@ -161,7 +161,7 @@ export async function listCreditsFor(virtualAccountId: string, pages = 3): Promi
 
 /**
  * Pouch sends `X-Liquifia-Signature` but its docs don't publish the algorithm yet.
- * We accept an HMAC-SHA256 of the raw body (hex or base64, with or without a `sha256=` prefix)
+ * We accept an HMAC-SHA256 or HMAC-SHA512 of the raw body (hex or base64, optional `sha256=`/`sha512=` prefix)
  * when POUCH_WEBHOOK_SECRET is set. This is a first filter only: payment state is decided by
  * re-reading the credit from the API, so a forged webhook can never mark an order paid.
  */
@@ -169,12 +169,15 @@ export function verifyWebhookSignature(rawBody: string, header: string | null): 
   const secret = process.env.POUCH_WEBHOOK_SECRET;
   if (!secret) return "skipped";
   if (!header) return "invalid";
-  const given = header.replace(/^sha256=/i, "").trim();
-  const mac = createHmac("sha256", secret).update(rawBody, "utf8").digest();
-  for (const expected of [mac.toString("hex"), mac.toString("base64")]) {
-    const a = Buffer.from(given);
-    const b = Buffer.from(expected);
-    if (a.length === b.length && timingSafeEqual(a, b)) return "valid";
+  const given = header.replace(/^sha(256|512)=/i, "").trim();
+  // Pouch hasn't published its scheme; accept HMAC-SHA256 or HMAC-SHA512 of the raw body, hex or base64.
+  for (const algo of ["sha256", "sha512"] as const) {
+    const mac = createHmac(algo, secret).update(rawBody, "utf8").digest();
+    for (const expected of [mac.toString("hex"), mac.toString("base64")]) {
+      const a = Buffer.from(given);
+      const b = Buffer.from(expected);
+      if (a.length === b.length && timingSafeEqual(a, b)) return "valid";
+    }
   }
   return "invalid";
 }
