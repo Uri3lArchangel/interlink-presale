@@ -150,12 +150,13 @@ export function confirmationEmail(order: Order) {
  * (SMTP_USER + SMTP_PASSWORD), then Gmail (GMAIL_USER + GMAIL_APP_PASSWORD). With none of them,
  * development prints the email and production throws so the send is retried later.
  */
-export async function sendOrderConfirmation(order: Order) {
+export async function sendOrderConfirmation(order: Order, opts: { subjectPrefix?: string } = {}) {
   const mail = confirmationEmail(order);
+  const subject = (opts.subjectPrefix ?? "") + mail.subject;
   const message = {
     to: order.customer.email,
     replyTo: site.supportEmail,
-    subject: mail.subject,
+    subject,
     html: mail.html,
     text: mail.text,
     headers: { "X-Interlink-Order": order.id },
@@ -196,12 +197,7 @@ export async function sendOrderConfirmation(order: Order) {
     await transport.sendMail({
       // Gmail only sends as the signed-in account, so the address is always GMAIL_USER.
       from: { name: site.name, address: gmailUser },
-      to: order.customer.email,
-      replyTo: site.supportEmail,
-      subject: mail.subject,
-      html: mail.html,
-      text: mail.text,
-      headers: { "X-Interlink-Order": order.id },
+      ...message,
     });
     return;
   }
