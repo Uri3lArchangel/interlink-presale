@@ -426,7 +426,8 @@ select {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding: 12px 0 0;
+  /* only the top: the side padding comes from .wrap and gives the phone gutter */
+  padding-top: 12px;
 }
 .tile {
   text-align: center;
@@ -516,6 +517,48 @@ select {
   .tile-media .case-img,
   .tile.wide .tile-media .case-img {
     max-height: 360px;
+  }
+}
+@media (max-width: 560px) {
+  .tiles {
+    gap: 10px;
+  }
+  .tile {
+    border-radius: 22px;
+    padding: 32px 20px 0;
+  }
+  .tile .h3 {
+    font-size: 26px;
+  }
+  .tile .lede {
+    font-size: 16px;
+    margin-top: 6px;
+  }
+  .switch {
+    margin-top: 18px;
+  }
+  .switch button {
+    min-width: 84px;
+    height: 30px;
+    font-size: 13px;
+  }
+  .tile-buy {
+    margin-top: 14px;
+    gap: 12px;
+  }
+  .tile-buy .price {
+    font-size: 15px;
+  }
+  .tile-buy .btn {
+    height: 40px;
+    font-size: 15px;
+  }
+  .tile-media {
+    margin-top: 12px;
+  }
+  .tile-media .case-img,
+  .tile.wide .tile-media .case-img {
+    max-height: 280px;
   }
 }
 
@@ -1408,5 +1451,23 @@ legend {
   }
   .legal-toc {
     position: static;
+  }
+}
+
+/* phone tweaks for the PowerBank picker (after its base rules so they win) */
+@media (max-width: 560px) {
+  .power-media {
+    min-height: 280px;
+    border-radius: 22px;
+  }
+  .power-body {
+    border-radius: 22px;
+    padding: 24px 20px;
+  }
+  .caps {
+    gap: 6px;
+  }
+  .caps button {
+    height: 56px;
   }
 }
