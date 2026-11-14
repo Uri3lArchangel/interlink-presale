@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { formatKobo, formatNaira } from "./catalog";
 import { site } from "./site";
+import { feeLabel } from "./pricing";
 import type { Order } from "./orders";
 
 const esc = (s: string) =>
@@ -75,8 +76,20 @@ export function confirmationEmail(order: Order) {
       <tr><td style="padding:12px 40px 0">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${rows}
+          ${
+            order.feeKobo
+              ? `<tr>
+            <td colspan="2" style="padding:16px 0 0;font-family:${font};font-size:14px;color:${grey}">Subtotal</td>
+            <td style="padding:16px 0 0;text-align:right;font-family:${font};font-size:14px;color:${grey}">${formatKobo(order.subtotalKobo ?? order.totalKobo - order.feeKobo)}</td>
+          </tr>
           <tr>
-            <td colspan="2" style="padding:18px 0 0;font-family:${font};font-size:15px;color:${grey}">Total paid</td>
+            <td colspan="2" style="padding:6px 0 0;font-family:${font};font-size:14px;color:${grey}">${feeLabel}</td>
+            <td style="padding:6px 0 0;text-align:right;font-family:${font};font-size:14px;color:${grey}">${formatKobo(order.feeKobo)}</td>
+          </tr>`
+              : ""
+          }
+          <tr>
+            <td colspan="2" style="padding:12px 0 0;font-family:${font};font-size:15px;color:${grey}">Total paid</td>
             <td style="padding:18px 0 0;text-align:right;font-family:${font};font-size:20px;font-weight:700;letter-spacing:-0.01em;color:${ink}">${formatKobo(order.paidKobo)}</td>
           </tr>
         </table>
@@ -93,7 +106,7 @@ export function confirmationEmail(order: Order) {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
           ${step("We build your hardware.", `${site.presale.batch} is estimated to dispatch in ${esc(order.estimatedDispatch)}. If that changes, we’ll email you.`)}
           ${step("We confirm delivery.", "Before dispatch we’ll check your address and quote the delivery charge.")}
-          ${step("You can change your mind.", "Cancel any time before your dispatch notice for a full refund.")}
+          ${step("You can change your mind.", `Cancel any time before your dispatch notice and we refund the price you paid. The ${site.transactionFeePct}% transaction fee isn’t refunded for a change of mind.`)}
         </table>
       </td></tr>
 

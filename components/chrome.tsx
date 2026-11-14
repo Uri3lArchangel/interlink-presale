@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MAX_QTY, formatNaira } from "@/lib/catalog";
+import { feeLabel } from "@/lib/pricing";
 import { useCart } from "./cart";
 
 /** The Interlink "in" mark (silver on graphite), from the LinkBrowser app's icon. */
@@ -45,7 +46,7 @@ export function Header() {
 }
 
 export function Drawer() {
-  const { lines, subtotal, open, setOpen, setQty, toast } = useCart();
+  const { lines, subtotal, fee, total, open, setOpen, setQty, toast } = useCart();
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -119,7 +120,15 @@ export function Drawer() {
           <div className="drawer-foot">
             <div className="sum">
               <span>Subtotal</span>
-              <strong>{formatNaira(subtotal)}</strong>
+              <span>{formatNaira(subtotal)}</span>
+            </div>
+            <div className="sum">
+              <span>{feeLabel}</span>
+              <span>{formatNaira(fee)}</span>
+            </div>
+            <div className="sum">
+              <span>Total</span>
+              <strong>{formatNaira(total)}</strong>
             </div>
             <p className="small">Delivery is quoted before dispatch. You can cancel for a refund until then.</p>
             <Link href="/checkout" className="btn btn-primary btn-block" onClick={() => setOpen(false)}>

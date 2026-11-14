@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { MAX_QTY, productById, type Product } from "@/lib/catalog";
+import { transactionFee } from "@/lib/pricing";
 
 type Cart = Record<string, number>;
 type CartLine = Product & { quantity: number };
@@ -10,6 +11,8 @@ type CartCtx = {
   lines: CartLine[];
   count: number;
   subtotal: number;
+  fee: number;
+  total: number;
   ready: boolean;
   add: (id: string) => void;
   setQty: (id: string, qty: number) => void;
@@ -89,10 +92,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const lines = Object.entries(cart)
       .map(([id, quantity]) => ({ ...productById(id)!, quantity }))
       .filter((l) => l.id);
+    const subtotal = lines.reduce((s, l) => s + l.quantity * l.price, 0);
+    const fee = transactionFee(subtotal);
     return {
       lines,
       count: lines.reduce((s, l) => s + l.quantity, 0),
-      subtotal: lines.reduce((s, l) => s + l.quantity * l.price, 0),
+      subtotal,
+      fee,
+      total: subtotal + fee,
       ready,
       add,
       setQty,

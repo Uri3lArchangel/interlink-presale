@@ -84,6 +84,11 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           Delivery charges are not included in the presale price and will be quoted to you before dispatch (see{" "}
           <a className="link" href="#delivery">Delivery</a>).
         </p>
+        <p>
+          <strong>Transaction fee.</strong> A transaction fee of {site.transactionFeePct}% of the hardware price is added to every
+          order. It covers the cost of processing your payment and running the presale. It is shown in your bag and at checkout,
+          and included in the total you transfer, before you pay.
+        </p>
         <p className="key">
           <strong>Cost adjustment.</strong> If, before dispatch, events outside our control increase our cost of supplying your order
           by more than {P.costAdjustThresholdPct}%, we may ask you to pay a cost adjustment. Such events are a change in the naira
@@ -155,7 +160,10 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
       <>
         <p>
           You may cancel your order <strong>for any reason, at any time before we send your dispatch notice</strong>, by emailing{" "}
-          {site.supportEmail} from the address used at checkout and quoting your order number. Once your dispatch notice is sent,
+          {site.supportEmail} from the address used at checkout and quoting your order number. If you cancel for your own reasons,
+          we refund the hardware price you paid; the transaction fee is not refunded, because the payment has already been
+          processed. Whenever these Terms give you a full refund because of something on our side (a delay, a product change, a
+          cost adjustment, a pricing error, or us cancelling your order), the transaction fee is refunded too. Once your dispatch notice is sent,
           the order can no longer be cancelled for a change of mind and the return rules in{" "}
           <a className="link" href="#returns">Returns</a> apply instead.
         </p>
@@ -193,7 +201,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
       <>
         <p>
           Before dispatch we will confirm your delivery address and quote the delivery charge. You may pay it, choose a collection point
-          where we offer one, or cancel for a full refund of the price you paid. We deliver within Nigeria only unless we agree
+          where we offer one, or cancel for a full refund, including the transaction fee. We deliver within Nigeria only unless we agree
           otherwise in writing.
         </p>
         <p>

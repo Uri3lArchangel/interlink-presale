@@ -25,5 +25,7 @@ export const site = {
     // Minimum days a customer gets to decide whether to pay an adjustment or cancel.
     costAdjustNoticeDays: 14,
   },
-  termsVersion: "2026-11-14.6",
+  // Added to every order at checkout and shown before payment. Covers payment processing plus a margin.
+  transactionFeePct: 2.5,
+  termsVersion: "2026-11-14.7",
 } as const;

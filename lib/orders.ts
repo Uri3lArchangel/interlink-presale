@@ -1,6 +1,7 @@
 import "server-only";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { MAX_QTY, productById } from "./catalog";
+import { transactionFee } from "./pricing";
 import { kv, withLock } from "./store";
 import { listCreditsFor, openCollectionAccount, traceInboundTransfer, type InboundCredit } from "./pouch";
 import { sendOrderConfirmation } from "./email";
@@ -24,7 +25,9 @@ export type Order = {
     address: { line1: string; line2?: string; city: string; state: string; postcode?: string };
   };
   lines: OrderLine[];
-  totalKobo: number;
+  subtotalKobo?: number; // hardware only (absent on orders placed before the fee existed)
+  feeKobo?: number; // transaction fee
+  totalKobo: number; // what the customer must transfer
   paidKobo: number;
   credits: { id: string; amount: number; payer?: string; at?: string }[];
   account: { id: string; number: string; name: string; bank: string };
@@ -69,7 +72,11 @@ export async function createOrder(input: CheckoutInput): Promise<Order> {
     return { id, name: p.name, unitPrice: p.price, quantity, image: p.image };
   });
   if (!lines.length) throw new CheckoutError("Your cart is empty.");
-  const totalKobo = lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0) * 100;
+  const subtotal = lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0);
+  const fee = transactionFee(subtotal);
+  const subtotalKobo = subtotal * 100;
+  const feeKobo = fee * 100;
+  const totalKobo = subtotalKobo + feeKobo;
 
   let id = orderNumber();
   while (await kv().get(orderKey(id))) id = orderNumber();
@@ -90,6 +97,8 @@ export async function createOrder(input: CheckoutInput): Promise<Order> {
     createdAt: new Date().toISOString(),
     customer: input.customer,
     lines,
+    subtotalKobo,
+    feeKobo,
     totalKobo,
     paidKobo: 0,
     credits: [],
@@ -215,6 +224,8 @@ export function publicOrder(order: Order) {
     firstName: order.customer.firstName,
     email: order.customer.email,
     lines: order.lines,
+    subtotalKobo: order.subtotalKobo ?? order.totalKobo,
+    feeKobo: order.feeKobo ?? 0,
     totalKobo: order.totalKobo,
     paidKobo: order.paidKobo,
     account: { number: order.account.number, name: order.account.name, bank: order.account.bank },

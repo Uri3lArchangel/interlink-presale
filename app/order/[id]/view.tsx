@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatKobo, formatNaira } from "@/lib/catalog";
+import { feeLabel } from "@/lib/pricing";
 import type { PublicOrder } from "@/lib/orders";
 import { site } from "@/lib/site";
 
@@ -199,6 +200,18 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
                 </div>
               ))}
             </div>
+            {order.feeKobo > 0 && (
+              <div style={{ display: "grid", gap: 8, borderTop: "1px solid var(--rule)", paddingTop: 16, marginBottom: 10 }}>
+                <div className="sum">
+                  <span>Subtotal</span>
+                  <span>{formatKobo(order.subtotalKobo)}</span>
+                </div>
+                <div className="sum">
+                  <span>{feeLabel}</span>
+                  <span>{formatKobo(order.feeKobo)}</span>
+                </div>
+              </div>
+            )}
             <div className="sum" style={{ borderTop: "1px solid var(--rule)", paddingTop: 16 }}>
               <span>Total</span>
               <strong>{formatKobo(order.totalKobo)}</strong>

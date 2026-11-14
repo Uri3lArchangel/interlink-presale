@@ -12,11 +12,11 @@ const faqs = [
   },
   {
     q: "Can I cancel?",
-    a: "Yes, for any reason, until we send your dispatch notice. We refund what you paid to the account it came from. If dispatch is badly delayed, you can cancel even later.",
+    a: `Yes, for any reason, until we send your dispatch notice. We refund the price you paid to the account it came from. If you cancel just because you changed your mind, the ${site.transactionFeePct}% transaction fee isn’t refunded; if we cause the cancellation, for example through a delay or a product change, you get everything back.`,
   },
   {
     q: "How do I pay?",
-    a: "By bank transfer from any Nigerian bank. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.",
+    a: `By bank transfer from any Nigerian bank. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
   },
   {
     q: "Can the price change after I pay?",
@@ -42,7 +42,7 @@ const reasons = [
   },
   {
     title: "Cancel before dispatch",
-    body: "Changed your mind? Cancel any time before your dispatch notice for a full refund.",
+    body: "Changed your mind? Cancel any time before your dispatch notice and get the price you paid back.",
     icon: "M8 20a12 12 0 1 0 4-9M8 6v6h6",
   },
   {

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/cart";
 import { formatNaira } from "@/lib/catalog";
+import { feeLabel } from "@/lib/pricing";
 import { site } from "@/lib/site";
 
 const STATES = [
@@ -15,7 +16,7 @@ const STATES = [
 ];
 
 export function CheckoutForm() {
-  const { lines, subtotal, ready, clear } = useCart();
+  const { lines, subtotal, fee, total, ready, clear } = useCart();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export function CheckoutForm() {
           <legend>Agreement</legend>
           <p className="note">
             <strong>This is a presale.</strong> You are paying now for hardware that is still being manufactured. Estimated dispatch
-            is <strong>{site.presale.estimatedDispatch}</strong>; dates can change. You may cancel for a refund at any time before
+            is <strong>{site.presale.estimatedDispatch}</strong>; dates can change. You may cancel for a refund of the price paid at any time before
             your dispatch notice. If exchange rates, duties or tariffs raise our costs by more than{" "}
             {site.presale.costAdjustThresholdPct}% before dispatch, we may ask for a cost adjustment, which you can accept or decline
             for a full refund.
@@ -169,12 +170,16 @@ export function CheckoutForm() {
             <span className="price">{formatNaira(subtotal)}</span>
           </div>
           <div className="sum">
+            <span>{feeLabel}</span>
+            <span className="price">{formatNaira(fee)}</span>
+          </div>
+          <div className="sum">
             <span>Delivery</span>
             <span>Quoted before dispatch</span>
           </div>
           <div className="sum" style={{ borderTop: "1px solid var(--line)", paddingTop: 16, marginTop: 6 }}>
             <span>Due today</span>
-            <strong>{formatNaira(subtotal)}</strong>
+            <strong>{formatNaira(total)}</strong>
           </div>
         </div>
         <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} disabled={busy || !ready}>
