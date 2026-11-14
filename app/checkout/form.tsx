@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/cart";
-import { formatNaira } from "@/lib/catalog";
+import { formatEspees, formatNaira } from "@/lib/catalog";
 import { feeLabel } from "@/lib/pricing";
 import { site } from "@/lib/site";
 
@@ -181,6 +181,9 @@ export function CheckoutForm() {
             <span>Due today</span>
             <strong>{formatNaira(total)}</strong>
           </div>
+          <p className="small" style={{ textAlign: "right" }}>
+            ≈ {formatEspees(total)}. Pay in naira by bank transfer, or in crypto.
+          </p>
         </div>
         <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} disabled={busy || !ready}>
           {busy ? "Creating your payment account…" : "Continue to payment"}

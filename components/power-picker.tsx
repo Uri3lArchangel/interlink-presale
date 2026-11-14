@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { banks, formatNaira } from "@/lib/catalog";
+import { banks, formatEspees, formatNaira } from "@/lib/catalog";
 import { AddButton } from "./chrome";
 
 const USABLE = 0.65; // share of rated capacity that reaches the phone after conversion losses
@@ -77,7 +77,10 @@ export function PowerPicker() {
           <p className="small">An estimate. The real number depends on your phone and how you use it.</p>
         </div>
         <div className="power-buy">
-          <span className="price">{formatNaira(bank.price)}</span>
+          <span className="price">
+            {formatNaira(bank.price)}
+            <span style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--ink-2)" }}>≈ {formatEspees(bank.price)}</span>
+          </span>
           <AddButton id={bank.id} />
         </div>
       </div>

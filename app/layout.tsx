@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { CartProvider } from "@/components/cart";
 import { Drawer, Header } from "@/components/chrome";
-import { formatNaira, testPrice } from "@/lib/catalog";
+import { NGN_PER_ESPEE, formatNaira, testPrice } from "@/lib/catalog";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -47,7 +47,8 @@ function Footer() {
       <div className="wrap">
         <p className="footer-note">
           Product images are concept renders; final hardware may differ in finish and detail. Prices are in Nigerian naira and include
-          VAT where it applies. Dispatch dates are estimates. See the <Link href="/terms">Terms of Sale</Link> for cancellation and
+          VAT where it applies. Espees amounts are a guide at ₦{NGN_PER_ESPEE.toLocaleString("en-NG")} per Espee; you pay in naira by
+          bank transfer, or in crypto. Dispatch dates are estimates. See the <Link href="/terms">Terms of Sale</Link> for cancellation and
           refund rights.
         </p>
         <div className="footer-top">

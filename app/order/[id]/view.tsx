@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatKobo, formatNaira } from "@/lib/catalog";
+import { formatEspees, formatKobo, formatNaira } from "@/lib/catalog";
 import { feeLabel } from "@/lib/pricing";
 import type { PublicOrder } from "@/lib/orders";
 import { site } from "@/lib/site";
@@ -238,6 +238,7 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
               <span>Total</span>
               <strong>{formatKobo(order.totalKobo)}</strong>
             </div>
+            <p className="small" style={{ textAlign: "right", marginTop: 4 }}>≈ {formatEspees(order.totalKobo / 100)}</p>
             <p className="small" style={{ marginTop: 16 }}>
               Bookmark this page to check your order later. This order is covered by the{" "}
               <Link className="link" href="/terms">

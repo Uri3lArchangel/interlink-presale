@@ -1,7 +1,7 @@
 import "server-only";
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
-import { formatKobo, formatNaira } from "./catalog";
+import { formatEspees, formatKobo, formatNaira } from "./catalog";
 import { site } from "./site";
 import { feeLabel } from "./pricing";
 import type { Order } from "./orders";
@@ -91,6 +91,9 @@ export function confirmationEmail(order: Order) {
           <tr>
             <td colspan="2" style="padding:12px 0 0;font-family:${font};font-size:15px;color:${grey}">Total paid</td>
             <td style="padding:18px 0 0;text-align:right;font-family:${font};font-size:20px;font-weight:700;letter-spacing:-0.01em;color:${ink}">${formatKobo(order.paidKobo)}</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding:4px 0 0;text-align:right;font-family:${font};font-size:13px;color:${grey}">≈ ${formatEspees(order.paidKobo / 100)}</td>
           </tr>
         </table>
       </td></tr>

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { MAX_QTY, formatNaira } from "@/lib/catalog";
+import { MAX_QTY, formatEspees, formatNaira } from "@/lib/catalog";
 import { feeLabel } from "@/lib/pricing";
 import { useCart } from "./cart";
 
@@ -130,6 +130,7 @@ export function Drawer() {
               <span>Total</span>
               <strong>{formatNaira(total)}</strong>
             </div>
+            <p className="small" style={{ textAlign: "right", marginTop: -8 }}>≈ {formatEspees(total)}</p>
             <p className="small">Delivery is quoted before dispatch. You can cancel for a refund until then.</p>
             <Link href="/checkout" className="btn btn-primary btn-block" onClick={() => setOpen(false)}>
               Check out

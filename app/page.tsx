@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Family } from "@/components/family";
 import { PowerPicker } from "@/components/power-picker";
-import { banks, formatNaira, productById } from "@/lib/catalog";
+import { banks, formatEspees, formatNaira, productById } from "@/lib/catalog";
 import { site } from "@/lib/site";
 
 const faqs = [
@@ -119,7 +119,9 @@ export default function Home() {
           <h3 className="h3">Personal PowerBank</h3>
           <p className="lede">Prevent unauthorized access to your power bank.</p>
           <div className="tile-buy" style={{ marginTop: 22 }}>
-            <span className="price">From {formatNaira(banks[0].price)}</span>
+            <span className="price">
+              From {formatNaira(banks[0].price)} · ≈ {formatEspees(banks[0].price)}
+            </span>
             <Link href="#power" className="btn btn-primary">
               Choose a size
             </Link>

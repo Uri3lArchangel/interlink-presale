@@ -87,3 +87,12 @@ export const formatNaira = (amount: number) =>
 
 export const formatKobo = (kobo: number) =>
   "₦" + (kobo / 100).toLocaleString("en-NG", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+/**
+ * Naira per Espee, used only to show an approximate Espees price next to the naira price.
+ * Customers still pay in naira (bank transfer) or crypto. Update NEXT_PUBLIC_NGN_PER_ESPEE as the rate moves.
+ */
+export const NGN_PER_ESPEE = Number(process.env.NEXT_PUBLIC_NGN_PER_ESPEE) || 2050;
+
+export const formatEspees = (naira: number) =>
+  (naira / NGN_PER_ESPEE).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " Espees";

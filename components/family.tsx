@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { formatNaira, productById } from "@/lib/catalog";
+import { formatEspees, formatNaira, productById } from "@/lib/catalog";
 import { AddButton } from "./chrome";
 
 /** A router family (standard + Pro) as a centred product tile, with a switch between the two models. */
@@ -38,6 +38,7 @@ export function Family({
       <div className="tile-buy">
         <span className="price" aria-live="polite">
           {current.name}, {formatNaira(current.price)}
+          <span style={{ display: "block", fontSize: 14, opacity: 0.75 }}>≈ {formatEspees(current.price)}</span>
         </span>
         <AddButton id={current.id} />
       </div>
