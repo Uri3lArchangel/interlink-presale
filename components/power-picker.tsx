@@ -7,9 +7,17 @@ import { AddButton } from "./chrome";
 
 const USABLE = 0.65; // share of rated capacity that reaches the phone after conversion losses
 
+// Typical phone battery sizes, so shoppers pick a phone size instead of a mAh figure.
+const PHONES = [
+  { label: "Small", mah: 3000 },
+  { label: "Average", mah: 4500 },
+  { label: "Large", mah: 5500 },
+];
+
 export function PowerPicker() {
   const [i, setI] = useState(2);
-  const [phone, setPhone] = useState(5000);
+  const [phoneIdx, setPhoneIdx] = useState(1);
+  const phone = PHONES[phoneIdx].mah;
   const bank = banks[i];
   const charges = (bank.capacity! * USABLE) / phone;
   const cells = Math.ceil(charges);
@@ -43,17 +51,20 @@ export function PowerPicker() {
                 aria-label={`${b.capacity!.toLocaleString("en-NG")} mAh`}
               >
                 <b>{b.capacity! / 1000}K</b>
-                <span>mAh</span>
               </button>
             ))}
           </div>
         </div>
-        <label className="phone-row">
-          <span className="head">
-            Your phone’s battery <output>{phone.toLocaleString("en-NG")} mAh</output>
-          </span>
-          <input type="range" min={3000} max={6000} step={250} value={phone} onChange={(e) => setPhone(Number(e.target.value))} />
-        </label>
+        <div>
+          <p className="opt-label">Your phone</p>
+          <div className="caps" role="group" aria-label="Your phone size" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
+            {PHONES.map((p, n) => (
+              <button key={p.label} aria-pressed={n === phoneIdx} onClick={() => setPhoneIdx(n)} style={{ height: 52 }}>
+                <b style={{ fontSize: 16 }}>{p.label}</b>
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="cells" aria-live="polite">
           <p className="cells-sum">About {charges.toFixed(1)} full charges</p>
           <div className="cells-row" aria-hidden="true">
@@ -63,7 +74,7 @@ export function PowerPicker() {
               </span>
             ))}
           </div>
-          <p className="small">Assumes about 65% of rated capacity reaches your phone after conversion losses.</p>
+          <p className="small">An estimate. The real number depends on your phone and how you use it.</p>
         </div>
         <div className="power-buy">
           <span className="price">{formatNaira(bank.price)}</span>

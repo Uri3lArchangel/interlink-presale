@@ -51,7 +51,7 @@ const reasons = [
     icon: "M5 16h30M8 16v14M16 16v14M24 16v14M32 16v14M4 34h32M20 4 4 12h32Z",
   },
   {
-    title: "First production run",
+    title: "First batch",
     body: `${site.presale.batch} ships from an estimated ${site.presale.estimatedDispatch}, ahead of general sale.`,
     icon: "M4 30h22M26 30V14h6l4 8v8h-10M4 12h22v18M10 34a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM30 34a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
   },
@@ -70,7 +70,7 @@ export default function Home() {
             in your hands.
           </h1>
           <p className="lede">
-            Routers, rooftop nodes and PowerBanks for the Interlink network. Reserve yours from the first production run.
+            Routers, rooftop nodes and PowerBanks for the Interlink network. Reserve yours from the first batch.
           </p>
           <div className="actions">
             <Link href="#routers" className="btn btn-primary">
@@ -141,7 +141,7 @@ export default function Home() {
         <div className="wrap">
           <div className="section-head">
             <h2 className="h2">Which PowerBank is right for you?</h2>
-            <p className="lede">Pick a capacity, set your phone’s battery, and see how many full charges you get.</p>
+            <p className="lede">Pick a size and your phone, and see how many full charges you get.</p>
           </div>
           <PowerPicker />
         </div>

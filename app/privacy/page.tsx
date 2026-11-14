@@ -26,14 +26,14 @@ export default function PrivacyPage() {
               <ul>
                 <li><strong>Contact details</strong> (name, email, phone): to confirm your order and contact you about it. Basis: performance of our contract with you.</li>
                 <li><strong>Delivery address</strong>: to deliver your products. Basis: contract.</li>
-                <li><strong>Payment details</strong> (the virtual account issued for your order, and the payer name, bank and amount of transfers into it): to match and verify payment and to process refunds. We never see your card or online banking credentials. Basis: contract and legal obligation.</li>
+                <li><strong>Payment details</strong> (the account number created for your order, and the name, bank and amount of each transfer into it): to match and verify payment and to process refunds. We never see your card or online banking credentials. Basis: contract and legal obligation.</li>
                 <li><strong>Agreement record</strong> (Terms version, time, IP address, browser details): to evidence the terms you accepted. Basis: legitimate interest and legal obligation.</li>
               </ul>
             </section>
             <section>
               <h2>Who we share it with</h2>
               <p>
-                Our payment partner Pouch (Liquifia) and its banking partners, to issue your payment account and process transfers;
+                Our payment partner Pouch and its banking partners, to create your payment account number and process transfers;
                 our email provider, to send order emails; our hosting and database providers; and delivery partners, at dispatch. We do
                 not sell your data or use it for third-party advertising. Some providers may process data outside Nigeria under
                 safeguards permitted by the NDPA.

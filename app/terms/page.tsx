@@ -55,8 +55,8 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          Submitting checkout is an offer to buy. A contract is formed only when we have received your full payment in cleared funds
-          and sent you an order confirmation email with an order number. Until then we may decline any order.
+          Submitting checkout is an offer to buy. A contract is formed only when your full payment has arrived in our account
+          and we have sent you an order confirmation email with an order number. Until then we may decline any order.
         </p>
         <p>
           We may limit quantities per product, per customer, per address or per payment account (currently {MAX_QTY} units per product per
@@ -91,7 +91,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           an adjustment without your agreement, and we will ask for an adjustment no more than once per order.
         </p>
         <p>
-          Payment is by bank transfer into a dedicated virtual account issued for your order by our payment partner, Pouch (Liquifia).
+          Payment is by bank transfer to an account number created just for your order by our payment partner, Pouch.
           You must transfer the exact amount shown, to the account shown for that order, within {P.paymentWindowHours} hours. Unpaid
           reservations lapse after that time and we may release the stock.
         </p>
@@ -168,7 +168,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
       <>
         <p>
           Because the products are still in development, we may change design, materials, finish, colour, packaging, components,
-          firmware, software features, suppliers and specifications before dispatch. We will only make changes that are needed for
+          built-in software, software features, suppliers and specifications before dispatch. We will only make changes that are needed for
           manufacturing, safety, regulatory approval, component availability or product improvement, and that do not materially reduce
           the core function of what you ordered.
         </p>
@@ -250,9 +250,9 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          Routers and nodes provide connectivity only where Interlink network coverage, upstream internet service and suitable
-          installation conditions exist. Speed, range, uptime and coverage depend on location, terrain, interference, weather, power
-          supply, upstream providers and the number of users, and are not guaranteed. Any figures we publish are typical results under
+          Routers and nodes connect you only where the Interlink network reaches, where any internet service they rely on is available,
+          and where they can be set up properly. Speed, range, reliability and coverage depend on where you are, buildings and terrain,
+          weather, power supply, other service providers and how many people are using the network, and are not guaranteed. Any figures we publish are typical results under
           test conditions.
         </p>
         <p>
@@ -261,7 +261,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           involving height or electrical connections should be done by a qualified installer.
         </p>
         <p>
-          Network services, firmware and software features may be provided under separate terms, and may change, be suspended or be
+          Network services, built-in software and app features may be provided under separate terms, and may change, be suspended or be
           discontinued. Your purchase of hardware does not include a right to any particular network service.
         </p>
       </>
