@@ -76,7 +76,8 @@ function Footer() {
         </div>
         <div className="footer-legal">
           <span>
-            Copyright © {new Date().getFullYear()} {site.legalName}, {site.rcNumber}. All rights reserved.
+            Interlink is a product of {site.legalName}. Copyright © {new Date().getFullYear()} {site.legalName}, {site.rcNumber}.
+            All rights reserved.
           </span>
           <span>{site.address}</span>
         </div>

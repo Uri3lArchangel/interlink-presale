@@ -16,8 +16,9 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
       <>
         <p>
           These Terms of Sale (the <strong>“Terms”</strong>) govern every reservation and purchase made through this website during
-          the Interlink presale. They form a binding agreement between you and {S} ({site.rcNumber}), {site.address} (
-          <strong>“Interlink”</strong>, <strong>“we”</strong>, <strong>“us”</strong>).
+          the Interlink presale. They form a binding agreement between you and {S} ({site.rcNumber}), {site.address}, the
+          company that makes and sells Interlink products (<strong>“Interlink”</strong>, <strong>“we”</strong>,{" "}
+          <strong>“us”</strong>).
         </p>
         <p>
           You accept these Terms by ticking the agreement box at checkout. We record the version you accepted ({site.termsVersion}),

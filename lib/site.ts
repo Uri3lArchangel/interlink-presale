@@ -5,8 +5,8 @@
  */
 export const site = {
   name: "Interlink",
-  // TODO: registered company name exactly as on the CAC certificate.
-  legalName: "Interlink Technologies Limited",
+  // Interlink is a product of TSION Corp Limited, the seller named in the Terms.
+  legalName: "TSION Corp Limited",
   // TODO: CAC registration number.
   rcNumber: "RC 0000000",
   // TODO: registered office address.
@@ -26,5 +26,5 @@ export const site = {
     // Minimum days a customer gets to decide whether to pay an adjustment or cancel.
     costAdjustNoticeDays: 14,
   },
-  termsVersion: "2026-11-14.3",
+  termsVersion: "2026-11-14.4",
 } as const;
