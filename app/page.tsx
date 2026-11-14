@@ -127,7 +127,7 @@ export default function Home() {
           <div className="tile-media">
             <Image
               className="case-img"
-              src="/products/power-3.webp"
+              src="/products/power-3.jpg"
               alt="Personal PowerBank, concept render"
               width={512}
               height={512}

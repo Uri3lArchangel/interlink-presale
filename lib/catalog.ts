@@ -19,7 +19,7 @@ const powerBanks: Product[] = Array.from({ length: 5 }, (_, i) => {
     line: "Personal PowerBank",
     summary: "Portable power that only unlocks with your fingerprint.",
     price: 29000 + i * 10000,
-    image: `/products/power-${i + 1}.webp`,
+    image: `/products/power-${i + 1}.jpg`,
     capacity,
   };
 });
