@@ -77,9 +77,18 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          Prices are in Nigerian naira and include any VAT that applies. The hardware price you pay is locked: we will not ask you for
-          more for the hardware itself if the retail price rises before dispatch. Delivery charges are not included in the presale
-          price and will be quoted to you before dispatch (see <a className="link" href="#delivery">Delivery</a>).
+          Prices are in Nigerian naira and include any VAT that applies. The hardware price is fixed when you pay, and we will not ask
+          you for more because our retail price rises before dispatch. The only exception is a cost adjustment, described below.
+          Delivery charges are not included in the presale price and will be quoted to you before dispatch (see{" "}
+          <a className="link" href="#delivery">Delivery</a>).
+        </p>
+        <p className="key">
+          <strong>Cost adjustment.</strong> If, before dispatch, events outside our control increase our cost of supplying your order
+          by more than {P.costAdjustThresholdPct}%, we may ask you to pay a cost adjustment. Such events are a change in the naira
+          exchange rate, new or increased import duties, tariffs or levies, or a change in law. We will email you the amount, the reason
+          and a deadline of at least {P.costAdjustNoticeDays} days. You may either pay the adjustment or cancel for a full refund of
+          everything you paid. If you do neither by the deadline, we will cancel your order and refund you in full. We will never take
+          an adjustment without your agreement, and we will ask for an adjustment no more than once per order.
         </p>
         <p>
           Payment is by bank transfer into a dedicated virtual account issued for your order by our payment partner, Pouch (Liquifia).

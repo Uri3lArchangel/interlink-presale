@@ -21,6 +21,10 @@ export const site = {
     longStopDays: 180,
     // Unpaid reservations are released after this many hours.
     paymentWindowHours: 48,
+    // Cost adjustment (Terms, "Price and payment"): only when supply costs rise by more than this share, outside our control.
+    costAdjustThresholdPct: 10,
+    // Minimum days a customer gets to decide whether to pay an adjustment or cancel.
+    costAdjustNoticeDays: 14,
   },
-  termsVersion: "2026-11-14",
+  termsVersion: "2026-11-14.2",
 } as const;

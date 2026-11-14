@@ -121,7 +121,9 @@ export function CheckoutForm() {
           <p className="note">
             <strong>This is a presale.</strong> You are paying now for hardware that is still being manufactured. Estimated dispatch
             is <strong>{site.presale.estimatedDispatch}</strong>; dates can change. You may cancel for a refund at any time before
-            your dispatch notice.
+            your dispatch notice. If exchange rates, duties or tariffs raise our costs by more than{" "}
+            {site.presale.costAdjustThresholdPct}% before dispatch, we may ask for a cost adjustment, which you can accept or decline
+            for a full refund.
           </p>
           <label className="check" style={{ marginTop: 24 }}>
             <input type="checkbox" name="terms" required />

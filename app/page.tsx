@@ -19,8 +19,8 @@ const faqs = [
     a: "By bank transfer from any Nigerian bank. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.",
   },
   {
-    q: "Is the price fixed?",
-    a: "Yes. What you pay now is the hardware price, even if the retail price goes up later. Delivery is quoted separately before dispatch.",
+    q: "Can the price change after I pay?",
+    a: `Not because our retail price goes up. The one exception: if exchange rates, import duties or tariffs raise our cost of supplying your order by more than ${site.presale.costAdjustThresholdPct}% before dispatch, we may ask for a cost adjustment. You choose whether to pay it or cancel for a full refund, and we never charge it without your agreement. Delivery is quoted separately before dispatch.`,
   },
   {
     q: "Are the pictures the final product?",
@@ -36,8 +36,8 @@ const Icon = ({ d }: { d: string }) => (
 
 const reasons = [
   {
-    title: "Presale price, locked",
-    body: "The price you pay today is the hardware price, even if retail goes up before launch.",
+    title: "Presale pricing",
+    body: "Pay today’s presale price. If import costs ever force a change, you decide: pay it or cancel for a full refund.",
     icon: "M8 18V12a12 12 0 0 1 24 0v6M6 18h28v16H6zM20 24v4",
   },
   {
@@ -173,7 +173,7 @@ export default function Home() {
           <ol className="steps">
             <li>
               <h3>Check out</h3>
-              <p>Tell us who you are and where to deliver. Your price is fixed from this point.</p>
+              <p>Tell us who you are and where to deliver. You pay today’s presale price.</p>
             </li>
             <li>
               <h3>Transfer the total</h3>
