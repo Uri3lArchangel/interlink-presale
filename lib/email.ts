@@ -146,9 +146,9 @@ export function confirmationEmail(order: Order) {
 }
 
 /**
- * Sends the confirmation. An SMTP mailbox (SMTP_USER + SMTP_PASSWORD) wins, then Gmail (GMAIL_USER + GMAIL_APP_PASSWORD), so the store can
- * email customers without owning a domain. Otherwise Resend, which needs a verified domain to reach
- * customers. With neither, development prints the email and production throws so the send is retried.
+ * Sends the confirmation. Resend (RESEND_API_KEY + EMAIL_FROM on a verified domain) wins, then an SMTP mailbox
+ * (SMTP_USER + SMTP_PASSWORD), then Gmail (GMAIL_USER + GMAIL_APP_PASSWORD). With none of them,
+ * development prints the email and production throws so the send is retried later.
  */
 export async function sendOrderConfirmation(order: Order) {
   const mail = confirmationEmail(order);
@@ -161,7 +161,15 @@ export async function sendOrderConfirmation(order: Order) {
     headers: { "X-Interlink-Order": order.id },
   };
 
-  // 1. Any SMTP mailbox, e.g. Namecheap Private Email (mail.privateemail.com, port 465).
+  // 1. Resend, once EMAIL_FROM is set to an address on a domain verified in Resend.
+  const resendKey = process.env.RESEND_API_KEY;
+  const resendFrom = process.env.EMAIL_FROM;
+  if (resendKey && resendFrom) {
+    await sendWithResend(resendKey, resendFrom, message, order.id);
+    return;
+  }
+
+  // 2. Any SMTP mailbox, e.g. Namecheap Private Email (mail.privateemail.com, port 465).
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASSWORD;
   if (smtpUser && smtpPass) {
@@ -177,7 +185,7 @@ export async function sendOrderConfirmation(order: Order) {
     return;
   }
 
-  // 2. Gmail with an app password.
+  // 3. Gmail with an app password.
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
   if (gmailUser && gmailPass) {
@@ -200,22 +208,23 @@ export async function sendOrderConfirmation(order: Order) {
 
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    if (process.env.NODE_ENV === "production") throw new Error("No email provider configured (SMTP_USER/SMTP_PASSWORD, GMAIL_USER/GMAIL_APP_PASSWORD or RESEND_API_KEY)");
+    if (process.env.NODE_ENV === "production") throw new Error("No email provider configured (RESEND_API_KEY + EMAIL_FROM, SMTP_USER/SMTP_PASSWORD or GMAIL_USER/GMAIL_APP_PASSWORD)");
     console.info(`[email] (dev, not sent) to ${order.customer.email}: ${mail.subject}\n${mail.text}`);
     return;
   }
-  const resend = new Resend(key);
-  const { error } = await resend.emails.send(
-    {
-      from: process.env.EMAIL_FROM ?? `Interlink <orders@interlink.example>`,
-      to: order.customer.email,
-      replyTo: site.supportEmail,
-      subject: mail.subject,
-      html: mail.html,
-      text: mail.text,
-    },
+  await sendWithResend(key, process.env.EMAIL_FROM ?? `${site.name} <onboarding@resend.dev>`, message, order.id);
+}
+
+async function sendWithResend(
+  key: string,
+  from: string,
+  message: { to: string; replyTo: string; subject: string; html: string; text: string; headers: Record<string, string> },
+  orderId: string,
+) {
+  const { error } = await new Resend(key).emails.send(
+    { from, ...message },
     // Resend drops repeats with the same key, a second guard against double emails.
-    { idempotencyKey: `order-confirmation/${order.id}` },
+    { idempotencyKey: `order-confirmation/${orderId}` },
   );
   if (error) throw new Error(error.message);
 }
