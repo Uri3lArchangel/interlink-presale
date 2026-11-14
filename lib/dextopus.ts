@@ -82,7 +82,8 @@ export async function createQuote(input: { asset: CryptoAsset; usdcOut: bigint; 
       recipient,
       refundTo: input.refundTo,
       strict: true,
-      user: input.orderId,
+      // Dextopus expects the payer's wallet on the origin chain here, not our order id.
+      user: input.refundTo,
       slippageBps: 50,
     }),
   });
