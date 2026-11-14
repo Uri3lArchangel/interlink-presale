@@ -5,10 +5,9 @@
  */
 export const site = {
   name: "Interlink",
-  // Interlink is a product of TSION Corp Limited, the seller named in the Terms.
-  legalName: "TSION Corp Limited",
-  // TODO: CAC registration number.
-  rcNumber: "RC 0000000",
+  // Interlink is a product of Arkmarket Place Limited (CAC certificate, registered 13 Aug 2026), the seller named in the Terms.
+  legalName: "Arkmarket Place Limited",
+  rcNumber: "RC 9771887",
   // TODO: registered office address.
   address: "Lagos, Nigeria",
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@interlink.example",
@@ -26,5 +25,5 @@ export const site = {
     // Minimum days a customer gets to decide whether to pay an adjustment or cancel.
     costAdjustNoticeDays: 14,
   },
-  termsVersion: "2026-11-14.5",
+  termsVersion: "2026-11-14.6",
 } as const;
