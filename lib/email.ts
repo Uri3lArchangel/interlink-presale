@@ -146,12 +146,38 @@ export function confirmationEmail(order: Order) {
 }
 
 /**
- * Sends the confirmation. Gmail (GMAIL_USER + GMAIL_APP_PASSWORD) wins when set, so the store can
+ * Sends the confirmation. An SMTP mailbox (SMTP_USER + SMTP_PASSWORD) wins, then Gmail (GMAIL_USER + GMAIL_APP_PASSWORD), so the store can
  * email customers without owning a domain. Otherwise Resend, which needs a verified domain to reach
  * customers. With neither, development prints the email and production throws so the send is retried.
  */
 export async function sendOrderConfirmation(order: Order) {
   const mail = confirmationEmail(order);
+  const message = {
+    to: order.customer.email,
+    replyTo: site.supportEmail,
+    subject: mail.subject,
+    html: mail.html,
+    text: mail.text,
+    headers: { "X-Interlink-Order": order.id },
+  };
+
+  // 1. Any SMTP mailbox, e.g. Namecheap Private Email (mail.privateemail.com, port 465).
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASSWORD;
+  if (smtpUser && smtpPass) {
+    const port = Number(process.env.SMTP_PORT ?? 465);
+    const transport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST ?? "mail.privateemail.com",
+      port,
+      secure: port === 465,
+      auth: { user: smtpUser, pass: smtpPass },
+    });
+    // The mailbox can only send as itself, so the address is always SMTP_USER.
+    await transport.sendMail({ ...message, from: { name: site.name, address: smtpUser } });
+    return;
+  }
+
+  // 2. Gmail with an app password.
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
   if (gmailUser && gmailPass) {
@@ -174,7 +200,7 @@ export async function sendOrderConfirmation(order: Order) {
 
   const key = process.env.RESEND_API_KEY;
   if (!key) {
-    if (process.env.NODE_ENV === "production") throw new Error("No email provider configured (GMAIL_USER/GMAIL_APP_PASSWORD or RESEND_API_KEY)");
+    if (process.env.NODE_ENV === "production") throw new Error("No email provider configured (SMTP_USER/SMTP_PASSWORD, GMAIL_USER/GMAIL_APP_PASSWORD or RESEND_API_KEY)");
     console.info(`[email] (dev, not sent) to ${order.customer.email}: ${mail.subject}\n${mail.text}`);
     return;
   }
