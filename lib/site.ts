@@ -27,5 +27,5 @@ export const site = {
   },
   // Added to every order at checkout and shown before payment. Covers payment processing plus a margin.
   transactionFeePct: 2.5,
-  termsVersion: "2026-11-14.7",
+  termsVersion: "2026-11-14.8",
 } as const;

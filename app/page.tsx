@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "How do I pay?",
-    a: `By bank transfer from any Nigerian bank. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
+    a: `By bank transfer from any Nigerian bank. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. You can also pay in USDC or USDT on the order page. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
   },
   {
     q: "Can the price change after I pay?",

@@ -5,6 +5,8 @@ import { transactionFee } from "./pricing";
 import { kv, withLock } from "./store";
 import { listCreditsFor, openCollectionAccount, traceInboundTransfer, type InboundCredit } from "./pouch";
 import { sendOrderConfirmation } from "./email";
+import { assetByKey, looksLikeAddress } from "./crypto-assets";
+import { createQuote, cryptoEnabled, ngnPerUsd, quoteStatus } from "./dextopus";
 import { site } from "./site";
 
 export type OrderLine = { id: string; name: string; unitPrice: number; quantity: number; image: string };
@@ -36,6 +38,20 @@ export type Order = {
   estimatedDispatch: string;
   confirmationEmailAt?: string;
   lastReconciledAt?: number;
+  /** Latest crypto quote, if the customer chose to pay in crypto. */
+  crypto?: {
+    requestId: string;
+    assetKey: string;
+    depositAddress: string;
+    amountIn: string; // smallest unit of the chosen token
+    usdcOut: string; // smallest unit of USDC (6 dp) we receive
+    ngnPerUsd: number;
+    refundTo: string;
+    createdAt: string;
+    expiresAt?: string;
+    state: "waiting" | "processing" | "completed" | "failed" | "refunded";
+    originTxHash?: string;
+  };
 };
 
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I/L
@@ -47,6 +63,7 @@ function orderNumber() {
 
 const orderKey = (id: string) => `order:${id}`;
 const accountKey = (vaId: string) => `va:${vaId}`;
+const cryptoKey = (requestId: string) => `dx:${requestId}`;
 
 export type CheckoutInput = {
   items: { id: string; quantity: number }[];
@@ -206,12 +223,113 @@ export async function reconcile(order: Order): Promise<Order> {
   order.lastReconciledAt = Date.now();
   await kv().set(orderKey(order.id), order);
   try {
+    if (order.crypto && order.crypto.state !== "completed" && order.crypto.state !== "refunded") {
+      const after = await reconcileCrypto(order.id);
+      if (after?.status === "paid") return after;
+    }
     const credits = await listCreditsFor(order.account.id);
     return (await applyCredits(order.id, credits)) ?? order;
   } catch (err) {
     console.error(`[orders] reconcile ${order.id} failed`, err);
     return order;
   }
+}
+
+export class CryptoError extends Error {}
+
+/**
+ * Create (or replace) a crypto quote for an unpaid order. The naira total is converted to USDC at the
+ * business-set rate, and Dextopus works out exactly how much of the customer's token to send.
+ */
+export async function startCryptoPayment(orderId: string, assetKey: string, refundTo: string) {
+  if (!cryptoEnabled()) throw new CryptoError("Crypto payments aren't available right now.");
+  const asset = assetByKey(assetKey);
+  if (!asset) throw new CryptoError("Choose a supported coin and network.");
+  refundTo = refundTo.trim();
+  if (!looksLikeAddress(asset.vm, refundTo)) {
+    throw new CryptoError(`That doesn't look like a ${asset.network} wallet address. Check it and try again.`);
+  }
+  const rate = ngnPerUsd()!;
+  const result = await withLock(orderId, async () => {
+    const order = await getOrder(orderId);
+    if (!order) throw new CryptoError("Order not found.");
+    if (order.status !== "awaiting_payment" || order.paidKobo > 0) {
+      throw new CryptoError("This order already has a payment. Contact support to pay the rest in crypto.");
+    }
+    if (isExpired(order)) throw new CryptoError("This reservation has lapsed. Please start a new order.");
+    if (order.crypto && (order.crypto.state === "processing" || order.crypto.state === "completed")) {
+      throw new CryptoError("A crypto payment for this order is already being processed.");
+    }
+    // naira (kobo) -> USDC smallest unit (6 dp), rounded up so we never receive less than the total.
+    // USDC units = naira / rate * 1e6 = kobo * 1e4 / rate. Rate is scaled by 100 to keep it an integer.
+    const rate100 = BigInt(Math.round(rate * 100));
+    const usdcOut = (BigInt(order.totalKobo) * 1_000_000n + rate100 - 1n) / rate100;
+    const quote = await createQuote({ asset, usdcOut, refundTo, orderId: order.id });
+    order.crypto = {
+      requestId: quote.requestId,
+      assetKey: asset.key,
+      depositAddress: quote.depositAddress,
+      amountIn: quote.amountIn,
+      usdcOut: quote.usdcOut,
+      ngnPerUsd: rate,
+      refundTo,
+      createdAt: new Date().toISOString(),
+      expiresAt: quote.expiresAt,
+      state: "waiting",
+    };
+    await kv().set(orderKey(order.id), order);
+    await kv().set(cryptoKey(quote.requestId), order.id);
+    await kv().set(`dxaddr:${quote.depositAddress.toLowerCase()}`, order.id);
+    return order;
+  });
+  if (!result) throw new CryptoError("We're busy updating this order. Try again in a moment.");
+  return result;
+}
+
+/** Re-read the crypto payment status from Dextopus and settle the order if it has completed. */
+export async function reconcileCrypto(orderId: string): Promise<Order | null> {
+  const order = await getOrder(orderId);
+  if (!order?.crypto || order.crypto.state === "completed" || order.crypto.state === "refunded") return order;
+  const status = await quoteStatus(order.crypto.requestId);
+  if (status.state !== "completed" && status.state === order.crypto.state) return order;
+  if (status.state === "completed") {
+    // Strict quotes only complete for the exact amount, so a completed quote covers the order total.
+    const credit = {
+      id: order.crypto.requestId,
+      amount: order.totalKobo - order.paidKobo,
+      payer_name: `Crypto (${assetByKey(order.crypto.assetKey)?.symbol ?? "stablecoin"})`,
+      received_at: new Date().toISOString(),
+    };
+    const updated = await withLock(orderId, async () => {
+      const o = await getOrder(orderId);
+      if (!o?.crypto) return o;
+      o.crypto.state = "completed";
+      o.crypto.originTxHash = status.originTxHash ?? o.crypto.originTxHash;
+      await kv().set(orderKey(o.id), o);
+      return o;
+    });
+    return (await applyCredits(orderId, [credit])) ?? updated ?? order;
+  }
+  return withLock(orderId, async () => {
+    const o = await getOrder(orderId);
+    if (!o?.crypto) return o;
+    o.crypto.state = status.state;
+    o.crypto.originTxHash = status.originTxHash ?? o.crypto.originTxHash;
+    await kv().set(orderKey(o.id), o);
+    return o;
+  });
+}
+
+/** A Dextopus webhook only names the request; the status is re-read from the API before anything changes. */
+export async function handleCryptoWebhook(requestId?: string, depositAddress?: string) {
+  let orderId = requestId ? await kv().get<string>(cryptoKey(requestId)) : null;
+  if (!orderId && depositAddress) {
+    // Fall back to matching the deposit address if the webhook's id format differs from the quote's.
+    orderId = await kv().get<string>(`dxaddr:${depositAddress.toLowerCase()}`);
+  }
+  if (!orderId) return { ok: true, reason: "not an order quote" as const };
+  const order = await reconcileCrypto(orderId);
+  return { ok: true, status: order?.status };
 }
 
 /** The subset of an order that is safe to send to the browser. */
@@ -230,6 +348,19 @@ export function publicOrder(order: Order) {
     paidKobo: order.paidKobo,
     account: { number: order.account.number, name: order.account.name, bank: order.account.bank },
     estimatedDispatch: order.estimatedDispatch,
+    cryptoEnabled: cryptoEnabled(),
+    crypto: order.crypto
+      ? {
+          assetKey: order.crypto.assetKey,
+          depositAddress: order.crypto.depositAddress,
+          amountIn: order.crypto.amountIn,
+          usdcOut: order.crypto.usdcOut,
+          ngnPerUsd: order.crypto.ngnPerUsd,
+          refundTo: order.crypto.refundTo,
+          expiresAt: order.crypto.expiresAt,
+          state: order.crypto.state,
+        }
+      : null,
     expiresAt: new Date(Date.parse(order.createdAt) + site.presale.paymentWindowHours * 3600_000).toISOString(),
   };
 }

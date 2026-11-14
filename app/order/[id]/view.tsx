@@ -7,6 +7,7 @@ import { formatKobo, formatNaira } from "@/lib/catalog";
 import { feeLabel } from "@/lib/pricing";
 import type { PublicOrder } from "@/lib/orders";
 import { site } from "@/lib/site";
+import { CryptoPay } from "@/components/crypto-pay";
 
 function Copy({ value, label }: { value: string; label: string }) {
   const [done, setDone] = useState(false);
@@ -38,6 +39,7 @@ const statusLabel: Record<PublicOrder["status"], string> = {
 export function OrderView({ initial, token, testMode }: { initial: PublicOrder; token: string; testMode: boolean }) {
   const [order, setOrder] = useState(initial);
   const [simulating, setSimulating] = useState(false);
+  const [method, setMethod] = useState<"bank" | "crypto">(initial.crypto ? "crypto" : "bank");
   const outstanding = Math.max(0, order.totalKobo - order.paidKobo);
   const paid = order.status === "paid";
 
@@ -127,6 +129,24 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
                 </Link>
               </div>
             ) : (
+              <>
+              {order.cryptoEnabled && order.status === "awaiting_payment" && (
+                <div className="switch" role="group" aria-label="Payment method" style={{ background: "var(--grey)", marginTop: 0, marginBottom: 16 }}>
+                  {(["bank", "crypto"] as const).map((m) => (
+                    <button
+                      key={m}
+                      aria-pressed={method === m}
+                      onClick={() => setMethod(m)}
+                      style={method === m ? { background: "#fff", color: "var(--ink)", boxShadow: "0 1px 3px rgba(0,0,0,.12)" } : { color: "var(--ink-2)" }}
+                    >
+                      {m === "bank" ? "Bank transfer" : "Crypto"}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {method === "crypto" && order.cryptoEnabled && order.status === "awaiting_payment" ? (
+                <CryptoPay order={order} token={token} testMode={testMode} onUpdate={setOrder} />
+              ) : (
               <div className="case transfer">
                 <p className="small">Send exactly</p>
                 <p className="amount">{formatKobo(outstanding)}</p>
@@ -176,6 +196,8 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
                   </div>
                 )}
               </div>
+              )}
+              </>
             )}
           </div>
 
