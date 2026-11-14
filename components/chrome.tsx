@@ -7,20 +7,9 @@ import { usePathname } from "next/navigation";
 import { MAX_QTY, formatNaira } from "@/lib/catalog";
 import { useCart } from "./cart";
 
-/**
- * The Interlink mark, taken from the Interlink Android app's launcher icon
- * (three mesh nodes joined by links on brand blue #1E5AA8), cropped to the icon's visible area.
- */
-export function Mark({ size = 26 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="14 14 80 80" aria-hidden="true">
-      <rect x="14" y="14" width="80" height="80" rx="20" fill="#1E5AA8" />
-      <path d="M54 30 34 70h40Z" fill="none" stroke="#fff" strokeWidth="4" strokeLinejoin="round" />
-      <circle cx="54" cy="30" r="7" fill="#fff" />
-      <circle cx="34" cy="70" r="7" fill="#fff" />
-      <circle cx="74" cy="70" r="7" fill="#fff" />
-    </svg>
-  );
+/** The Interlink "in" mark (silver on graphite), from the LinkBrowser app's icon. */
+export function Mark({ size = 28 }: { size?: number }) {
+  return <Image src="/brand/interlink-mark.png" alt="" width={size} height={size} priority />;
 }
 
 export function Header() {
