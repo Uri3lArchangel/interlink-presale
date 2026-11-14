@@ -392,6 +392,10 @@ h2.display {
   height: 100%;
   object-fit: cover;
   object-position: center 30%;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 32%), linear-gradient(0deg, transparent 0%, #000 26%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 32%), linear-gradient(0deg, transparent 0%, #000 26%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
 .hero-media::after {
   content: "";
@@ -413,6 +417,13 @@ h2.display {
   color: var(--text-2);
 }
 @media (max-width: 900px) {
+  .hero-media img {
+    -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 35%);
+    mask-image: linear-gradient(0deg, transparent 0%, #000 35%);
+  }
+  .hero-caption {
+    display: none;
+  }
   .hero-grid {
     grid-template-columns: 1fr;
   }
@@ -530,7 +541,7 @@ h2.display {
 .row-media img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   transition: transform 1.2s var(--ease);
 }
 .row:hover .row-media img {

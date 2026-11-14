@@ -102,7 +102,7 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
             {paid ? (
               <div className="panel">
                 <p className="eyebrow">Order number</p>
-                <p className="bank big" style={{ margin: "10px 0 0", fontFamily: "var(--mono)", fontSize: 32, letterSpacing: ".06em" }}>
+                <p style={{ margin: "10px 0 0", fontFamily: "var(--mono)", fontSize: 32, letterSpacing: ".06em" }}>
                   {order.id}
                 </p>
                 <p className="lede" style={{ marginTop: 24 }}>
