@@ -1,0 +1,26 @@
+/**
+ * Business details used across the storefront, emails and legal pages.
+ * Every value marked TODO must be confirmed before launch: the Terms of Sale
+ * name the seller by these details, and a wrong legal name or address weakens them.
+ */
+export const site = {
+  name: "Interlink",
+  // TODO: registered company name exactly as on the CAC certificate.
+  legalName: "Interlink Technologies Limited",
+  // TODO: CAC registration number.
+  rcNumber: "RC 0000000",
+  // TODO: registered office address.
+  address: "Lagos, Nigeria",
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@interlink.example",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  presale: {
+    batch: "Batch 01",
+    // TODO: confirm with manufacturing. Shown at checkout and in the Terms as an estimate only.
+    estimatedDispatch: "Q2 2027",
+    // Customers may cancel for a full refund if dispatch has not started this many days after the window ends.
+    longStopDays: 180,
+    // Unpaid reservations are released after this many hours.
+    paymentWindowHours: 48,
+  },
+  termsVersion: "2026-11-14",
+} as const;
