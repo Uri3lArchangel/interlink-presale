@@ -24,7 +24,7 @@ const powerBanks: Product[] = Array.from({ length: 5 }, (_, i) => {
   };
 });
 
-export const products: Product[] = [
+const catalog: Product[] = [
   {
     id: "tier1",
     name: "Tier 1 Router",
@@ -65,6 +65,15 @@ export const products: Product[] = [
   },
   ...powerBanks,
 ];
+
+/**
+ * Test pricing: set NEXT_PUBLIC_TEST_PRICE_NAIRA (e.g. 100) to charge that amount for every item,
+ * so the real payment flow can be tried cheaply. Remove it and redeploy to restore real prices.
+ * It is read at build time on both server and browser, so both always agree on the price.
+ */
+export const testPrice = Math.max(0, Math.floor(Number(process.env.NEXT_PUBLIC_TEST_PRICE_NAIRA) || 0));
+
+export const products: Product[] = testPrice ? catalog.map((p) => ({ ...p, price: testPrice })) : catalog;
 
 export const routers = products.filter((p) => p.family === "router");
 export const banks = products.filter((p) => p.family === "power");

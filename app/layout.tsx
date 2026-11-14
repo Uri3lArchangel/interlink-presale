@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { CartProvider } from "@/components/cart";
 import { Drawer, Header } from "@/components/chrome";
+import { formatNaira, testPrice } from "@/lib/catalog";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -22,6 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en-NG" className={jakarta.variable}>
       <body>
         <CartProvider>
+          {testPrice > 0 && (
+            <div className="banner" role="status">
+              <div className="wrap">
+                <span className="led" aria-hidden="true" />
+                <span>Test pricing is on: every item costs {formatNaira(testPrice)} while we test payments.</span>
+              </div>
+            </div>
+          )}
           <Header />
           <main>{children}</main>
           <Footer />
