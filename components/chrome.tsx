@@ -2,27 +2,28 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MAX_QTY, formatNaira } from "@/lib/catalog";
 import { useCart } from "./cart";
 
-export function Mark({ size = 22 }: { size?: number }) {
+/** Three linked nodes, one lit: the network with a device on it. */
+export function Mark({ size = 24 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="11.25" fill="none" stroke="currentColor" strokeWidth="1" opacity=".45" />
-      <path d="M12 5.5 6 16.5h12Z" fill="none" stroke="currentColor" strokeWidth="1" />
-      <circle cx="12" cy="5.5" r="1.7" fill="currentColor" />
-      <circle cx="6" cy="16.5" r="1.7" fill="currentColor" />
-      <circle cx="18" cy="16.5" r="1.7" fill="var(--accent)" />
+      <rect width="24" height="24" rx="7" fill="currentColor" />
+      <path d="M12 6.5 6.8 16h10.4Z" fill="none" stroke="var(--page, #e4e5e1)" strokeWidth="1.3" opacity=".6" />
+      <circle cx="12" cy="6.5" r="2" fill="var(--page, #e4e5e1)" />
+      <circle cx="6.8" cy="16" r="2" fill="var(--page, #e4e5e1)" />
+      <circle cx="17.2" cy="16" r="2" fill="#1761e8" />
     </svg>
   );
 }
 
 export function Header() {
   const { count, setOpen, ready } = useCart();
-  const pathname = usePathname();
-  const home = pathname === "/";
+  const home = usePathname() === "/";
+  const href = (id: string) => (home ? `#${id}` : `/#${id}`);
   return (
     <header className="header">
       <div className="wrap header-inner">
@@ -31,14 +32,14 @@ export function Header() {
           Interlink
         </Link>
         <nav className="nav" aria-label="Primary">
-          <Link href={home ? "#network" : "/#network"}>Network</Link>
-          <Link href={home ? "#power" : "/#power"}>Power</Link>
-          <Link href={home ? "#presale" : "/#presale"}>How it works</Link>
-          <Link href={home ? "#faq" : "/#faq"}>FAQ</Link>
+          <Link href={href("routers")}>Routers</Link>
+          <Link href={href("power")}>PowerBanks</Link>
+          <Link href={href("how")}>How paying works</Link>
+          <Link href={href("faq")}>Questions</Link>
         </nav>
-        <button className="bag-btn" onClick={() => setOpen(true)} aria-label={`Open bag, ${count} items`}>
+        <button className="bag-btn" onClick={() => setOpen(true)} aria-label={`Bag, ${count} items`}>
           Bag
-          <span className="bag-count" data-empty={!ready || count === 0}>
+          <span className="bag-count" data-full={ready && count > 0}>
             {ready ? count : 0}
           </span>
         </button>
@@ -70,38 +71,40 @@ export function Drawer() {
         }}
       >
         <div className="drawer-head">
-          <h2 id="bag-title">Your bag</h2>
+          <h2 id="bag-title">Bag</h2>
           <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close bag">
-            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
-              <path d="M1 1l12 12M13 1 1 13" stroke="currentColor" strokeWidth="1.3" />
+            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+              <path d="M1 1l10 10M11 1 1 11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </button>
         </div>
         <div className="drawer-body">
           {lines.length === 0 ? (
             <div className="empty">
-              <p>Your bag is empty.</p>
-              <button className="btn btn-ghost btn-sm" onClick={() => setOpen(false)}>
-                Continue browsing
+              <p style={{ margin: 0 }}>Nothing reserved yet. Add a router or PowerBank to start.</p>
+              <button className="btn btn-quiet btn-sm" onClick={() => setOpen(false)}>
+                Keep browsing
               </button>
             </div>
           ) : (
             lines.map((l) => (
               <div className="line" key={l.id}>
-                <Image src={l.image} alt="" width={72} height={72} />
+                <div className="thumb">
+                  <Image src={l.image} alt="" width={76} height={76} />
+                </div>
                 <div>
                   <div className="line-name">{l.name}</div>
-                  <div className="line-sub">{formatNaira(l.price)}</div>
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div className="line-sub">{formatNaira(l.price)} each</div>
+                  <div className="line-controls">
                     <div className="stepper">
-                      <button onClick={() => setQty(l.id, l.quantity - 1)} aria-label={`Remove one ${l.name}`}>
+                      <button onClick={() => setQty(l.id, l.quantity - 1)} aria-label={`One fewer ${l.name}`}>
                         −
                       </button>
                       <span aria-live="polite">{l.quantity}</span>
                       <button
                         onClick={() => setQty(l.id, l.quantity + 1)}
                         disabled={l.quantity >= MAX_QTY}
-                        aria-label={`Add one ${l.name}`}
+                        aria-label={`One more ${l.name}`}
                       >
                         +
                       </button>
@@ -122,15 +125,16 @@ export function Drawer() {
               <span>Subtotal</span>
               <strong>{formatNaira(subtotal)}</strong>
             </div>
-            <p className="fine">Delivery is quoted before dispatch. Presale items ship in the order reservations are paid.</p>
+            <p className="small">Delivery is quoted before dispatch. You can cancel for a refund until then.</p>
             <Link href="/checkout" className="btn btn-primary btn-block" onClick={() => setOpen(false)}>
-              Reserve and pay <span className="arrow">→</span>
+              Check out
             </Link>
           </div>
         )}
       </dialog>
       {toast && (
         <div className="toast" role="status">
+          <span className="led" aria-hidden="true" />
           {toast}
         </div>
       )}
@@ -138,38 +142,19 @@ export function Drawer() {
   );
 }
 
-export function AddButton({ id, label = "Reserve", className = "btn btn-primary" }: { id: string; label?: string; className?: string }) {
+export function AddButton({ id, className = "btn btn-primary" }: { id: string; className?: string }) {
   const { add } = useCart();
+  const [added, setAdded] = useState(false);
   return (
-    <button className={className} onClick={() => add(id)}>
-      {label} <span className="arrow">→</span>
+    <button
+      className={className}
+      onClick={() => {
+        add(id);
+        setAdded(true);
+        setTimeout(() => setAdded(false), 1400);
+      }}
+    >
+      {added ? "Added to bag" : "Add to bag"}
     </button>
   );
-}
-
-/** Fades sections in as they scroll into view. Content stays visible without JavaScript. */
-export function RevealObserver() {
-  const pathname = usePathname();
-  useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const els = [...document.querySelectorAll<HTMLElement>("[data-reveal]")];
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-          e.target.classList.add("in");
-          io.unobserve(e.target);
-        }
-      },
-      { threshold: 0.12, rootMargin: "0px 0px -6% 0px" },
-    );
-    for (const el of els) {
-      const r = el.getBoundingClientRect();
-      if (r.top < innerHeight) continue; // already on screen, don't hide it
-      el.classList.add("reveal");
-      io.observe(el);
-    }
-    return () => io.disconnect();
-  }, [pathname]);
-  return null;
 }

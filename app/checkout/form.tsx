@@ -25,7 +25,7 @@ export function CheckoutForm() {
       <div className="panel" style={{ marginTop: 48, maxWidth: 560 }}>
         <p style={{ marginTop: 0 }}>Your bag is empty.</p>
         <Link href="/#network" className="btn btn-primary btn-sm">
-          Browse the hardware <span className="arrow">→</span>
+          Browse the hardware
         </Link>
       </div>
     );
@@ -118,7 +118,7 @@ export function CheckoutForm() {
         </fieldset>
         <fieldset>
           <legend>Agreement</legend>
-          <p className="callout" style={{ marginTop: 0 }}>
+          <p className="note">
             <strong>This is a presale.</strong> You are paying now for hardware that is still being manufactured. Estimated dispatch
             is <strong>{site.presale.estimatedDispatch}</strong>; dates can change. You may cancel for a refund at any time before
             your dispatch notice.
@@ -146,11 +146,13 @@ export function CheckoutForm() {
       </div>
 
       <aside className="panel sticky" aria-label="Order summary">
-        <p className="eyebrow">Summary</p>
-        <div className="mini-lines" style={{ margin: "12px 0 20px" }}>
+        <h2 className="h3" style={{ fontSize: 20 }}>Summary</h2>
+        <div style={{ margin: "12px 0 20px" }}>
           {lines.map((l) => (
-            <div className="line" key={l.id}>
-              <Image src={l.image} alt="" width={56} height={56} />
+            <div className="line" key={l.id} style={{ gridTemplateColumns: "56px 1fr auto" }}>
+              <div className="thumb" style={{ width: 56, height: 56, borderRadius: 12 }}>
+                <Image src={l.image} alt="" width={56} height={56} />
+              </div>
               <div>
                 <div className="line-name">{l.name}</div>
                 <div className="line-sub">Qty {l.quantity}</div>
@@ -166,7 +168,7 @@ export function CheckoutForm() {
           </div>
           <div className="sum">
             <span>Delivery</span>
-            <span className="fine">Quoted before dispatch</span>
+            <span>Quoted before dispatch</span>
           </div>
           <div className="sum" style={{ borderTop: "1px solid var(--line)", paddingTop: 16, marginTop: 6 }}>
             <span>Due today</span>
@@ -174,9 +176,9 @@ export function CheckoutForm() {
           </div>
         </div>
         <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} disabled={busy || !ready}>
-          {busy ? "Creating your payment account…" : <>Continue to payment <span className="arrow">→</span></>}
+          {busy ? "Creating your payment account…" : "Continue to payment"}
         </button>
-        <p className="fine" style={{ marginTop: 14 }}>
+        <p className="small" style={{ marginTop: 14 }}>
           Next, you’ll get a dedicated account number for this order. Payments are processed by our payment partner, Pouch.
         </p>
       </aside>

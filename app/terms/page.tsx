@@ -228,7 +228,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           <li>products opened, modified or repaired by anyone other than us or our authorised agents;</li>
           <li>third-party software, SIM cards, internet service, or network coverage.</li>
         </ul>
-        <p className="caps">
+        <p className="key">
           Except for this limited warranty and your statutory rights, the products are supplied without other express warranties, and
           to the extent permitted by law we exclude implied warranties of fitness for a particular purpose.
         </p>
@@ -263,7 +263,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
     title: "Limitation of liability",
     body: (
       <>
-        <p className="caps">
+        <p className="key">
           To the fullest extent permitted by law: (a) our total liability arising out of or in connection with any order, whether in
           contract, tort (including negligence), statute or otherwise, is limited to the total amount you paid us for that order; and
           (b) we are not liable for any loss of profit, revenue, business, data, opportunity or goodwill, or for any indirect, special,
@@ -364,11 +364,11 @@ export default function TermsPage() {
   return (
     <section className="page">
       <div className="wrap">
-        <p className="eyebrow">
+        <p className="small">
           Version {site.termsVersion} · {site.legalName}
         </p>
-        <h1 className="display page-title">
-          Terms of <em>Sale.</em>
+        <h1 className="h1 page-h" style={{ marginTop: 12 }}>
+          Terms of Sale
         </h1>
         <p className="lede" style={{ marginTop: 24 }}>
           The short version: you are paying now for hardware that is still being made. Dispatch dates are estimates. You can cancel for

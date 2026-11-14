@@ -7,9 +7,9 @@ export default function PrivacyPage() {
   return (
     <section className="page">
       <div className="wrap">
-        <p className="eyebrow">Version {site.termsVersion}</p>
-        <h1 className="display page-title">
-          Privacy <em>Notice.</em>
+        <p className="small">Version {site.termsVersion}</p>
+        <h1 className="h1 page-h" style={{ marginTop: 12 }}>
+          Privacy Notice
         </h1>
         <div className="legal">
           <div />

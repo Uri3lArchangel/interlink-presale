@@ -28,10 +28,10 @@ function Copy({ value, label }: { value: string; label: string }) {
 }
 
 const statusLabel: Record<PublicOrder["status"], string> = {
-  awaiting_payment: "Awaiting transfer",
+  awaiting_payment: "Waiting for your transfer",
   part_paid: "Part payment received",
-  paid: "Paid · Reservation confirmed",
-  expired: "Reservation expired",
+  paid: "Paid and confirmed",
+  expired: "Reservation lapsed",
 };
 
 export function OrderView({ initial, token, testMode }: { initial: PublicOrder; token: string; testMode: boolean }) {
@@ -82,70 +82,63 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
   return (
     <section className="page">
       <div className="wrap">
+        {!paid && (
+          <ol className="crumbs">
+            <li>Shop</li>
+            <li>Details</li>
+            <li aria-current="step">Payment</li>
+          </ol>
+        )}
         <p className="status" data-s={order.status} role="status">
           <i aria-hidden="true" /> {statusLabel[order.status]}
         </p>
-        <h1 className="display page-title">
-          {paid ? (
-            <>
-              Thank you, <em>{order.firstName}.</em>
-            </>
-          ) : (
-            <>
-              Complete your <em>transfer.</em>
-            </>
-          )}
-        </h1>
+        <h1 className="h1 page-h">{paid ? `Thank you, ${order.firstName}` : order.status === "expired" ? "This reservation lapsed" : "Transfer to confirm your order"}</h1>
 
         <div className="split">
           <div>
             {paid ? (
-              <div className="panel">
-                <p className="eyebrow">Order number</p>
-                <p style={{ margin: "10px 0 0", fontFamily: "var(--mono)", fontSize: 32, letterSpacing: ".06em" }}>
-                  {order.id}
+              <div className="case transfer">
+                <p className="small" style={{ color: "var(--case-ink-2)" }}>
+                  Order number
                 </p>
-                <p className="lede" style={{ marginTop: 24 }}>
-                  We’ve received {formatKobo(order.paidKobo)} and your place in {site.presale.batch} is secured. A confirmation has
-                  been sent to <strong style={{ color: "var(--text)" }}>{order.email}</strong>. Estimated dispatch is{" "}
-                  {order.estimatedDispatch}; we’ll email you before anything ships.
+                <p className="order-no">{order.id}</p>
+                <p style={{ color: "var(--case-ink-2)", margin: "24px 0 0", maxWidth: "34em" }}>
+                  We received {formatKobo(order.paidKobo)} and your place in {site.presale.batch} is secured. A confirmation is on its
+                  way to <strong style={{ color: "var(--case-ink)" }}>{order.email}</strong>. Estimated dispatch is{" "}
+                  {order.estimatedDispatch}, and we’ll email you before anything ships.
                 </p>
-                <div className="hero-actions" style={{ marginTop: 28 }}>
-                  <Link href="/" className="btn btn-ghost">
-                    Back to the store
-                  </Link>
-                </div>
+                <Link href="/" className="btn btn-sm" style={{ marginTop: 28, background: "var(--case-ink)", color: "var(--case)" }}>
+                  Back to the shop
+                </Link>
               </div>
             ) : order.status === "expired" ? (
               <div className="panel">
-                <p className="lede" style={{ marginTop: 0 }}>
-                  We didn’t receive a transfer within {site.presale.paymentWindowHours} hours, so this reservation has lapsed. If you
-                  have already paid, don’t worry: write to{" "}
+                <p style={{ marginTop: 0 }}>
+                  No transfer arrived within {site.presale.paymentWindowHours} hours, so the hardware was released. If you did pay,
+                  email{" "}
                   <a className="link" href={`mailto:${site.supportEmail}?subject=${order.id}`}>
                     {site.supportEmail}
                   </a>{" "}
                   with order number {order.id} and we’ll match your payment.
                 </p>
-                <Link href="/" className="btn btn-primary" style={{ marginTop: 16 }}>
-                  Start a new reservation
+                <Link href="/" className="btn btn-primary">
+                  Start a new order
                 </Link>
               </div>
             ) : (
-              <div className="panel">
-                <p className="eyebrow">Transfer exactly</p>
-                <p style={{ fontFamily: "var(--serif)", fontSize: "clamp(48px,6vw,72px)", lineHeight: 1, margin: "14px 0 6px" }}>
-                  {formatKobo(outstanding)}
-                </p>
+              <div className="case transfer">
+                <p className="small">Send exactly</p>
+                <p className="amount">{formatKobo(outstanding)}</p>
                 {order.status === "part_paid" && (
-                  <p className="fine">
-                    {formatKobo(order.paidKobo)} received so far. Transfer the remaining balance to the same account.
+                  <p className="small" style={{ marginTop: 10 }}>
+                    {formatKobo(order.paidKobo)} received so far. Send the balance to the same account.
                   </p>
                 )}
-                <dl className="bank" style={{ marginTop: 24 }}>
+                <dl className="bank">
                   <div>
                     <dt>Account number</dt>
                     <dd>
-                      <span className="big">{order.account.number}</span>
+                      <span className="acct">{order.account.number}</span>
                       <Copy value={order.account.number} label="account number" />
                     </dd>
                   </div>
@@ -160,24 +153,24 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
                   <div>
                     <dt>Amount</dt>
                     <dd>
-                      <span className="price">{formatKobo(outstanding)}</span>
+                      {formatKobo(outstanding)}
                       <Copy value={String(outstanding / 100)} label="amount" />
                     </dd>
                   </div>
                 </dl>
-                <ul className="fine" style={{ paddingLeft: "1.1em", margin: "24px 0 0", display: "grid", gap: 8 }}>
-                  <li>This account number is unique to order {order.id}. Don’t reuse it for another order.</li>
-                  <li>Transfer before {deadline}. After that the reservation may be released.</li>
-                  <li>This page updates on its own once the transfer lands, usually within a minute.</li>
-                  <li>
-                    We will never ask you to pay into any other account. If anyone does, contact {site.supportEmail}.
-                  </li>
+                <ul className="tips">
+                  <li>This account number is only for order {order.id}. Don’t reuse it.</li>
+                  <li>Send it before {deadline}, or the hardware may be released.</li>
+                  <li>This page updates by itself when the money lands, usually within a minute.</li>
+                  <li>We will never ask you to pay into another account. If anyone does, tell {site.supportEmail}.</li>
                 </ul>
                 {testMode && (
-                  <div className="callout" style={{ marginTop: 28 }}>
-                    <strong>Test mode.</strong> No POUCH_SECRET_KEY is set, so this account is simulated.{" "}
-                    <button className="btn btn-ghost btn-sm" onClick={simulate} disabled={simulating} style={{ marginLeft: 8 }}>
-                      {simulating ? "Simulating…" : "Simulate transfer"}
+                  <div
+                    style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid rgba(235,236,232,.12)", display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}
+                  >
+                    <span className="small">Test mode: no Pouch key is set, so this account is simulated.</span>
+                    <button className="btn btn-sm btn-primary" onClick={simulate} disabled={simulating}>
+                      {simulating ? "Sending…" : "Simulate transfer"}
                     </button>
                   </div>
                 )}
@@ -187,13 +180,17 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
 
           <aside className="panel sticky" aria-label="Order summary">
             <div className="sum">
-              <span className="eyebrow">Order</span>
-              <span className="price">{order.id}</span>
+              <h2 className="h3" style={{ fontSize: 20 }}>
+                Order
+              </h2>
+              <span>{order.id}</span>
             </div>
-            <div className="mini-lines" style={{ margin: "12px 0 20px" }}>
+            <div style={{ margin: "12px 0 16px" }}>
               {order.lines.map((l) => (
-                <div className="line" key={l.id}>
-                  <Image src={l.image} alt="" width={56} height={56} />
+                <div className="line" key={l.id} style={{ gridTemplateColumns: "56px 1fr auto" }}>
+                  <div className="thumb" style={{ width: 56, height: 56, borderRadius: 12 }}>
+                    <Image src={l.image} alt="" width={56} height={56} />
+                  </div>
                   <div>
                     <div className="line-name">{l.name}</div>
                     <div className="line-sub">Qty {l.quantity}</div>
@@ -202,12 +199,12 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
                 </div>
               ))}
             </div>
-            <div className="sum">
+            <div className="sum" style={{ borderTop: "1px solid var(--rule)", paddingTop: 16 }}>
               <span>Total</span>
               <strong>{formatKobo(order.totalKobo)}</strong>
             </div>
-            <p className="fine" style={{ marginTop: 16 }}>
-              Bookmark this page to check your order later. Governed by the{" "}
+            <p className="small" style={{ marginTop: 16 }}>
+              Bookmark this page to check your order later. This order is covered by the{" "}
               <Link className="link" href="/terms">
                 Terms of Sale
               </Link>
