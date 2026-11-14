@@ -34,7 +34,7 @@ export default function PrivacyPage() {
               <h2>Who we share it with</h2>
               <p>
                 Our payment partner Pouch and its banking partners, to create your payment account number and process transfers;
-                our email provider, to send order emails; our hosting and database providers; and delivery partners, at dispatch. We do
+                Google (Gmail), to send order emails; Vercel and Upstash, which host this website and store order records; and delivery partners, at dispatch. We do
                 not sell your data or use it for third-party advertising. Some providers may process data outside Nigeria under
                 safeguards permitted by the NDPA.
               </p>

@@ -26,5 +26,5 @@ export const site = {
     // Minimum days a customer gets to decide whether to pay an adjustment or cancel.
     costAdjustNoticeDays: 14,
   },
-  termsVersion: "2026-11-14.4",
+  termsVersion: "2026-11-14.5",
 } as const;

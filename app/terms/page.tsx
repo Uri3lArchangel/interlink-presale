@@ -17,8 +17,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
         <p>
           These Terms of Sale (the <strong>“Terms”</strong>) govern every reservation and purchase made through this website during
           the Interlink presale. They form a binding agreement between you and {S} ({site.rcNumber}), {site.address}, the
-          company that makes and sells Interlink products (<strong>“Interlink”</strong>, <strong>“we”</strong>,{" "}
-          <strong>“us”</strong>).
+          company that makes and sells Interlink products (<strong>“we”</strong>, <strong>“us”</strong>).
         </p>
         <p>
           You accept these Terms by ticking the agreement box at checkout. We record the version you accepted ({site.termsVersion}),
@@ -57,7 +56,8 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
       <>
         <p>
           Submitting checkout is an offer to buy. A contract is formed only when your full payment has arrived in our account
-          and we have sent you an order confirmation email with an order number. Until then we may decline any order.
+          and we confirm your order with an order number, by email or on your order page, whichever comes first. Until then we
+          may decline any order and refund anything you paid.
         </p>
         <p>
           We may limit quantities per product, per customer, per address or per payment account (currently {MAX_QTY} units per product per
@@ -67,7 +67,8 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
         </p>
         <p>
           If a product is listed at an obviously incorrect price because of a typographical or technical error, we are not bound to
-          supply at that price. We will tell you and offer either to proceed at the correct price or to cancel with a full refund.
+          supply at that price, even if your order has been confirmed, as long as it has not been dispatched. We will tell you and
+          offer either to proceed at the correct price or to cancel with a full refund.
         </p>
       </>
     ),
@@ -108,6 +109,10 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           <li>
             <strong>Wrong account or reference:</strong> we are responsible only for funds that reach the account issued for your
             order. We will help trace misdirected transfers but cannot refund money that never reached us.
+          </li>
+          <li>
+            <strong>Overpayment:</strong> if you pay more than the amount due, we will refund the difference to the account it came
+            from.
           </li>
           <li>
             <strong>Bank charges:</strong> any charge your own bank applies to a transfer you make is yours to bear.
@@ -155,9 +160,9 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           <a className="link" href="#returns">Returns</a> apply instead.
         </p>
         <p>
-          Refunds are paid to a Nigerian bank account in your name, normally the account you paid from, within{" "}
+          Refunds are paid to the Nigerian bank account the payment came from, or to another account in your name, within{" "}
           <strong>30 days</strong> of a valid cancellation. We may ask you to verify your identity and the account before releasing a
-          refund, to protect you from fraud. We do not refund to third parties, and we do not pay interest on amounts held.
+          refund, to protect you from fraud. We do not refund to anyone else, and we do not pay interest on amounts held.
         </p>
       </>
     ),
@@ -210,9 +215,11 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          Inspect your products on delivery. If a product arrives damaged, defective, not matching its description, or not what you
-          ordered, notify us within <strong>7 days</strong> of delivery with your order number and photos. We will, at our option and
-          at our cost, repair or replace it, or refund the price paid for it, in line with your statutory rights.
+          Please inspect your products on delivery. If a product arrives damaged or is not what you ordered, tell us within{" "}
+          <strong>7 days</strong> of delivery with your order number and photos, so we can claim against the delivery company. If a
+          product is faulty or does not match its description, tell us as soon as you notice; the{" "}
+          <a className="link" href="#warranty">Limited warranty</a> and your statutory rights apply, and this 7-day window does not
+          limit them. We will, at our cost, repair or replace the product, or refund the price paid for it.
         </p>
         <p>
           Change-of-mind returns after delivery are not accepted, except where the law requires otherwise. Returned products must be
@@ -347,7 +354,8 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
         <p>
           These Terms are governed by the laws of the Federal Republic of Nigeria. If a dispute is not resolved within 30 days of your
           complaint, either party may refer it to mediation in Lagos and, if mediation fails, to arbitration in Lagos under the
-          Arbitration and Mediation Act 2023 before a sole arbitrator. Disputes will be resolved on an individual basis and not as a
+          Arbitration and Mediation Act 2023 before a sole arbitrator. For claims by individual customers, we will pay the
+          mediator’s and arbitrator’s fees, and each side pays its own lawyers. Disputes will be resolved on an individual basis and not as a
           class or representative action, to the extent permitted by law. Nothing in this clause stops you from making a complaint to
           the Federal Competition and Consumer Protection Commission or bringing a claim that falls within the jurisdiction of a small
           claims court.
@@ -382,8 +390,7 @@ export default function TermsPage() {
         </h1>
         <p className="lede" style={{ marginTop: 24 }}>
           The short version: you are paying now for hardware that is still being made. Dispatch dates are estimates. You can cancel for
-          a refund any time before we dispatch, and if we are badly delayed you can cancel even later. The full terms below are the
-          ones that apply.
+          a refund any time before we dispatch. The full terms below are the ones that apply.
         </p>
         <div className="legal">
           <nav className="legal-toc" aria-label="Sections">
