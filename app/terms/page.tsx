@@ -98,7 +98,7 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           an adjustment without your agreement, and we will ask for an adjustment no more than once per order.
         </p>
         <p>
-          Payment is by bank transfer to an account number created just for your order by our payment partner, Pouch.
+          Payment is by bank transfer to an account number created just for your order by our payment partner, Pouch, or by card, bank app or USSD through our payment partner, Paystack. Card payments are confirmed only when Paystack approves them; card refunds are made to the card or account used, and timing depends on your bank.
           You must transfer the exact amount shown, to the account shown for that order, within {P.paymentWindowHours} hours. Unpaid
           reservations lapse after that time and we may release the stock.
         </p>

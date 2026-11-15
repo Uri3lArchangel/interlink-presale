@@ -8,6 +8,7 @@ import { feeLabel } from "@/lib/pricing";
 import type { PublicOrder } from "@/lib/orders";
 import { site } from "@/lib/site";
 import { CryptoPay } from "@/components/crypto-pay";
+import { PaystackPay } from "@/components/paystack-pay";
 
 function Copy({ value, label }: { value: string; label: string }) {
   const [done, setDone] = useState(false);
@@ -30,7 +31,7 @@ function Copy({ value, label }: { value: string; label: string }) {
 }
 
 const statusLabel: Record<PublicOrder["status"], string> = {
-  awaiting_payment: "Waiting for your transfer",
+  awaiting_payment: "Waiting for your payment",
   part_paid: "Part payment received",
   paid: "Paid and confirmed",
   expired: "Reservation lapsed",
@@ -39,7 +40,13 @@ const statusLabel: Record<PublicOrder["status"], string> = {
 export function OrderView({ initial, token, testMode }: { initial: PublicOrder; token: string; testMode: boolean }) {
   const [order, setOrder] = useState(initial);
   const [simulating, setSimulating] = useState(false);
-  const [method, setMethod] = useState<"bank" | "crypto">(initial.crypto ? "crypto" : "bank");
+  const [method, setMethod] = useState<"bank" | "card" | "crypto">(initial.crypto ? "crypto" : "bank");
+  const methods = [
+    "bank" as const,
+    ...(initial.paystackEnabled ? ["card" as const] : []),
+    ...(initial.cryptoEnabled && initial.status === "awaiting_payment" ? ["crypto" as const] : []),
+  ];
+  const methodLabel = { bank: "Bank transfer", card: "Card", crypto: "Crypto" };
   const outstanding = Math.max(0, order.totalKobo - order.paidKobo);
   const paid = order.status === "paid";
 
@@ -95,7 +102,7 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
         <p className="status" data-s={order.status} role="status">
           <i aria-hidden="true" /> {statusLabel[order.status]}
         </p>
-        <h1 className="h1 page-h">{paid ? `Thank you, ${order.firstName}` : order.status === "expired" ? "This reservation lapsed" : "Transfer to confirm your order"}</h1>
+        <h1 className="h1 page-h">{paid ? `Thank you, ${order.firstName}` : order.status === "expired" ? "This reservation lapsed" : "Pay to confirm your order"}</h1>
 
         <div className="split">
           <div>
@@ -117,7 +124,7 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
             ) : order.status === "expired" ? (
               <div className="panel">
                 <p style={{ marginTop: 0 }}>
-                  No transfer arrived within {site.presale.paymentWindowHours} hours, so the hardware was released. If you did pay,
+                  No payment arrived within {site.presale.paymentWindowHours} hours, so the hardware was released. If you did pay,
                   email{" "}
                   <a className="link" href={`mailto:${site.supportEmail}?subject=${order.id}`}>
                     {site.supportEmail}
@@ -130,21 +137,23 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
               </div>
             ) : (
               <>
-              {order.cryptoEnabled && order.status === "awaiting_payment" && (
+              {methods.length > 1 && (order.status === "awaiting_payment" || order.status === "part_paid") && (
                 <div className="switch" role="group" aria-label="Payment method" style={{ background: "var(--grey)", marginTop: 0, marginBottom: 16 }}>
-                  {(["bank", "crypto"] as const).map((m) => (
+                  {methods.map((m) => (
                     <button
                       key={m}
                       aria-pressed={method === m}
                       onClick={() => setMethod(m)}
                       style={method === m ? { background: "#fff", color: "var(--ink)", boxShadow: "0 1px 3px rgba(0,0,0,.12)" } : { color: "var(--ink-2)" }}
                     >
-                      {m === "bank" ? "Bank transfer" : "Crypto"}
+                      {methodLabel[m]}
                     </button>
                   ))}
                 </div>
               )}
-              {method === "crypto" && order.cryptoEnabled && order.status === "awaiting_payment" ? (
+              {method === "card" && order.paystackEnabled ? (
+                <PaystackPay order={order} token={token} testMode={testMode} />
+              ) : method === "crypto" && order.cryptoEnabled && order.status === "awaiting_payment" ? (
                 <CryptoPay order={order} token={token} testMode={testMode} onUpdate={setOrder} />
               ) : (
               <div className="case transfer">
