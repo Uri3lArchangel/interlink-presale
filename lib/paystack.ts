@@ -1,5 +1,6 @@
 import "server-only";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { site } from "./site";
 
 /**
  * Paystack client: https://paystack.com/docs/api/transaction/
@@ -55,7 +56,8 @@ export async function initializeTransaction(input: {
       currency: "NGN",
       reference: input.reference,
       callback_url: input.callbackUrl,
-      metadata: { order_id: input.orderId, cancel_action: input.callbackUrl },
+      // `site` tells a shared webhook receiver which storefront owns this payment.
+      metadata: { site: site.key, order_id: input.orderId, cancel_action: input.callbackUrl },
     }),
   });
   return { authorizationUrl: data.authorization_url };

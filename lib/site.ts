@@ -4,6 +4,8 @@
  * name the seller by these details, and a wrong legal name or address weakens them.
  */
 export const site = {
+  // Identifies this storefront in payment metadata and when sharing webhooks with the sister site.
+  key: "interlink",
   name: "Interlink",
   // Interlink is a product of Arkmarket Place Limited (CAC certificate, registered 13 Aug 2026), the seller named in the Terms.
   legalName: "Arkmarket Place Limited",

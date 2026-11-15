@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { handleCryptoWebhook } from "@/lib/orders";
 import { verifyDextopusSignature } from "@/lib/dextopus";
+import { forwardWebhook } from "@/lib/webhook-forward";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,11 @@ export async function POST(req: NextRequest) {
   try {
     const d = payload.data ?? {};
     const result = await handleCryptoWebhook(d.requestId ?? d.depositRequestId, d.depositAddress);
+    // Not one of our quotes: it may belong to the sister storefront sharing this Dextopus account.
+    if (result.reason === "not an order quote") {
+      const forwarded = await forwardWebhook(req, "dextopus", raw, "unknown quote");
+      if (forwarded) return forwarded;
+    }
     return NextResponse.json({ received: true, event: payload.event ?? null, ...result });
   } catch (err) {
     console.error("[dextopus] webhook processing failed", err);
