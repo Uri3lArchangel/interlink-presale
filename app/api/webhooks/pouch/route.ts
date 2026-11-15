@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { handleCreditWebhook } from "@/lib/orders";
 import { verifyWebhookSignature } from "@/lib/pouch";
-import { forwardWebhook } from "@/lib/webhook-forward";
 
 export const runtime = "nodejs";
 
@@ -37,11 +36,6 @@ export async function POST(req: NextRequest) {
       id: typeof data.id === "string" ? data.id : undefined,
       virtual_account_id: typeof data.virtual_account_id === "string" ? data.virtual_account_id : undefined,
     });
-    // Not one of our accounts: it may belong to the sister storefront sharing this Pouch account.
-    if (result.reason === "not an order account") {
-      const forwarded = await forwardWebhook(req, "pouch", raw, "unknown virtual account");
-      if (forwarded) return forwarded;
-    }
     if (!result.ok) console.warn("[webhook] credit not applied:", result.reason, data.id);
     // 200 either way for unverifiable credits: a retry wouldn't change the answer.
     return NextResponse.json({ received: true, ...result });

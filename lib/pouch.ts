@@ -66,6 +66,7 @@ async function call<T>(path: string, init: RequestInit & { idempotencyKey?: stri
 /** Create the payer as a Pouch customer and open a virtual account capped at the order total. */
 export async function openCollectionAccount(input: {
   reference: string;
+  label?: string; // storefront name, shown on mock accounts
   firstName: string;
   lastName: string;
   email: string;
@@ -78,7 +79,7 @@ export async function openCollectionAccount(input: {
       account: {
         id: `mock_va_${input.reference}`,
         account_number: String(Math.floor(1e9 + Math.random() * 9e9)),
-        account_name: `Interlink / ${input.firstName} ${input.lastName}`,
+        account_name: `${input.label ?? "Interlink"} / ${input.firstName} ${input.lastName}`,
         bank_name: "Paga (test mode)",
         funding_limit: input.amountKobo,
         status: "active",

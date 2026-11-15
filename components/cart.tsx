@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { MAX_QTY, productById, type Product } from "@/lib/catalog";
+import type { BrandKey } from "@/lib/brands";
 import { transactionFee } from "@/lib/pricing";
 
 type Cart = Record<string, number>;
@@ -23,9 +24,12 @@ type CartCtx = {
 };
 
 const Ctx = createContext<CartCtx | null>(null);
-const KEY = "interlink-presale-bag-v2";
+// Each store keeps its own bag. Interlink keeps its original key so existing bags survive.
+const keyFor = (store: BrandKey) => (store === "interlink" ? "interlink-presale-bag-v2" : `${store}-presale-bag-v1`);
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ store = "interlink", children }: { store?: BrandKey; children: React.ReactNode }) {
+  const KEY = keyFor(store);
+  const inStore = useCallback((id: string) => productById(id)?.store === store, [store]);
   const [cart, setCart] = useState<Cart>({});
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
@@ -37,21 +41,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const saved = JSON.parse(localStorage.getItem(KEY) ?? "{}") as Cart;
       const clean: Cart = {};
       for (const [id, q] of Object.entries(saved)) {
-        if (productById(id) && Number.isInteger(q) && q > 0) clean[id] = Math.min(q, MAX_QTY);
+        if (inStore(id) && Number.isInteger(q) && q > 0) clean[id] = Math.min(q, MAX_QTY);
       }
       setCart(clean);
     } catch {
       // Storage unavailable (private mode); the bag still works for this visit.
     }
     setReady(true);
-  }, []);
+  }, [KEY, inStore]);
 
   useEffect(() => {
     if (!ready) return;
     try {
       localStorage.setItem(KEY, JSON.stringify(cart));
     } catch {}
-  }, [cart, ready]);
+  }, [cart, ready, KEY]);
 
   const flash = useCallback((msg: string) => {
     setToast(msg);
@@ -62,7 +66,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const add = useCallback(
     (id: string) => {
       const p = productById(id);
-      if (!p) return;
+      if (!p || p.store !== store) return;
       setCart((c) => {
         const q = c[id] ?? 0;
         if (q >= MAX_QTY) {
@@ -73,10 +77,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         return { ...c, [id]: q + 1 };
       });
     },
-    [flash],
+    [flash, store],
   );
 
   const setQty = useCallback((id: string, qty: number) => {
+    if (!inStore(id)) return;
     setCart((c) => {
       const next = { ...c };
       const q = Math.max(0, Math.min(MAX_QTY, qty));
@@ -84,7 +89,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       else delete next[id];
       return next;
     });
-  }, []);
+  }, [inStore]);
 
   const clear = useCallback(() => setCart({}), []);
 

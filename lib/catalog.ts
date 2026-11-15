@@ -1,7 +1,11 @@
+import type { BrandKey } from "./brands";
+
 export type Product = {
   id: string;
+  /** Which storefront sells it. A cart and an order only ever hold one store's products. */
+  store: BrandKey;
   name: string;
-  family: "router" | "power";
+  family: "router" | "power" | "console";
   line: string;
   summary: string;
   price: number; // naira, whole units
@@ -14,6 +18,7 @@ const powerBanks: Product[] = Array.from({ length: 5 }, (_, i) => {
   const capacity = (i + 1) * 10000;
   return {
     id: `power-${i + 1}`,
+    store: "interlink",
     name: `Personal PowerBank ${capacity / 1000}K`,
     family: "power",
     line: "Personal PowerBank",
@@ -27,6 +32,7 @@ const powerBanks: Product[] = Array.from({ length: 5 }, (_, i) => {
 const catalog: Product[] = [
   {
     id: "tier1",
+    store: "interlink",
     name: "Tier 1 Router",
     family: "router",
     line: "Desk",
@@ -36,6 +42,7 @@ const catalog: Product[] = [
   },
   {
     id: "tier1-pro",
+    store: "interlink",
     name: "Tier 1 Router Pro",
     family: "router",
     line: "Desk",
@@ -46,6 +53,7 @@ const catalog: Product[] = [
   },
   {
     id: "tier2",
+    store: "interlink",
     name: "Tier 2 Rooftop Node",
     family: "router",
     line: "Rooftop",
@@ -55,6 +63,7 @@ const catalog: Product[] = [
   },
   {
     id: "tier2-pro",
+    store: "interlink",
     name: "Tier 2 Rooftop Node Pro",
     family: "router",
     line: "Rooftop",
@@ -64,6 +73,16 @@ const catalog: Product[] = [
     pro: true,
   },
   ...powerBanks,
+  {
+    id: "arkplay",
+    store: "arkplay",
+    name: "ArkPlay console",
+    family: "console",
+    line: "ArkPlay",
+    summary: "A handheld console with Bible games and stories built in, made for your blessed hands.",
+    price: 849999,
+    image: "/media/arkplay-console.jpg",
+  },
 ];
 
 /**
@@ -76,6 +95,8 @@ export const testPrice = Math.max(0, Math.floor(Number(process.env.NEXT_PUBLIC_T
 export const products: Product[] = testPrice ? catalog.map((p) => ({ ...p, price: testPrice })) : catalog;
 
 export const routers = products.filter((p) => p.family === "router");
+export const arkplayConsole = products.find((p) => p.id === "arkplay")!;
+export const productsFor = (store: BrandKey) => products.filter((p) => p.store === store);
 export const banks = products.filter((p) => p.family === "power");
 
 export const productById = (id: string) => products.find((p) => p.id === id);

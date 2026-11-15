@@ -5,19 +5,22 @@ import { formatEspees, formatKobo, formatNaira } from "./catalog";
 import { site } from "./site";
 import { feeLabel } from "./pricing";
 import type { Order } from "./orders";
+import { brandOf, brandPath } from "./brands";
 
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 export function confirmationEmail(order: Order) {
-  const orderUrl = `${site.url}/order/${order.id}?t=${order.token}`;
+  const brand = brandOf(order.store);
+  const page = (p: string) => site.url + brandPath(brand, p);
+  const orderUrl = `${page(`/order/${order.id}`)}?t=${order.token}`;
   const a = order.customer.address;
   const address = [a.line1, a.line2, `${a.city}, ${a.state}`, a.postcode].filter(Boolean).map((x) => esc(x!)).join("<br>");
   const font = "-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif";
   const ink = "#1d1d1f";
   const grey = "#6e6e73";
   const rule = "#e8e8ed";
-  const blue = "#1e5aa8";
+  const blue = brand.email.accent;
   // JPG/PNG copies in public/email: many mail clients can't show the site's WebP images.
   const asset = (p: string) => `${site.url}/email/${p}`;
 
@@ -25,7 +28,7 @@ export function confirmationEmail(order: Order) {
     .map(
       (l) => `<tr>
         <td width="64" style="padding:14px 0;border-bottom:1px solid ${rule};vertical-align:middle">
-          <img src="${asset(`${l.id}.jpg`)}" width="56" height="56" alt="" style="display:block;border-radius:12px;background:#0b0b0c">
+          <img src="${asset(`${l.id}.jpg`)}" width="56" height="56" alt="" style="display:block;border-radius:12px;background:${brand.email.thumbBg}">
         </td>
         <td style="padding:14px 12px;border-bottom:1px solid ${rule};vertical-align:middle;font-family:${font}">
           <div style="font-size:15px;font-weight:600;color:${ink};line-height:1.3">${esc(l.name)}</div>
@@ -49,7 +52,7 @@ export function confirmationEmail(order: Order) {
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
       <tr><td align="center" style="padding:0 0 24px">
-        <img src="${asset("logo.png")}" width="44" height="44" alt="Interlink" style="display:block;border-radius:11px">
+        <img src="${asset(brand.email.logo)}" width="${brand.email.logoWidth}" height="${brand.email.logoHeight}" alt="${brand.name}" style="display:block;${brand.email.logoStyle}">
       </td></tr>
     </table>
 
@@ -57,7 +60,7 @@ export function confirmationEmail(order: Order) {
       <tr><td align="center" style="padding:44px 40px 8px;font-family:${font}">
         <div style="display:inline-block;padding:6px 12px;border-radius:999px;background:#e9f6ee;color:#1d7a43;font-size:13px;font-weight:600">&#10003;&nbsp; Payment received</div>
         <h1 style="margin:18px 0 10px;font-size:30px;line-height:1.15;font-weight:700;letter-spacing:-0.02em;color:${ink}">Thank you, ${esc(order.customer.firstName)}.</h1>
-        <p style="margin:0;font-size:16px;line-height:1.5;color:${grey}">Your Interlink reservation is confirmed.<br>Keep this email: your order number is how we find it.</p>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:${grey}">Your ${brand.name} reservation is confirmed.<br>Keep this email: your order number is how we find it.</p>
       </td></tr>
 
       <tr><td style="padding:28px 40px 4px">
@@ -107,7 +110,7 @@ export function confirmationEmail(order: Order) {
       <tr><td style="padding:24px 40px 0;font-family:${font}">
         <div style="font-size:15px;font-weight:700;color:${ink};margin-bottom:14px">What happens next</div>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-          ${step("We build your hardware.", `${site.presale.batch} is estimated to dispatch in ${esc(order.estimatedDispatch)}. If that changes, we’ll email you.`)}
+          ${step(`We build your ${brand.goods}.`, `${brand.batch} is estimated to dispatch in ${esc(order.estimatedDispatch)}. If that changes, we’ll email you.`)}
           ${step("We confirm delivery.", "Before dispatch we’ll check your address and quote the delivery charge.")}
           ${step("You can change your mind.", `Cancel any time before your dispatch notice and we refund the price you paid. The ${site.transactionFeePct}% transaction fee isn’t refunded for a change of mind.`)}
         </table>
@@ -121,9 +124,9 @@ export function confirmationEmail(order: Order) {
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
       <tr><td align="center" style="padding:28px 24px 0;font-family:${font};font-size:12px;line-height:1.6;color:#86868b">
-        Questions? Reply to this email or write to <a href="mailto:${esc(site.supportEmail)}" style="color:#86868b">${esc(site.supportEmail)}</a> and quote ${order.id}.<br>
-        Your order is covered by the <a href="${site.url}/terms" style="color:#86868b">Terms of Sale</a> (version ${site.termsVersion}) you accepted at checkout.<br><br>
-        Interlink is a product of ${esc(site.legalName)}, ${esc(site.rcNumber)}, ${esc(site.address)}.
+        Questions? Reply to this email or write to <a href="mailto:${esc(brand.supportEmail)}" style="color:#86868b">${esc(brand.supportEmail)}</a> and quote ${order.id}.<br>
+        Your order is covered by the <a href="${page("/terms")}" style="color:#86868b">Terms of Sale</a> (version ${order.consent.termsVersion}) you accepted at checkout.<br><br>
+        ${brand.name} is ${brand.key === "interlink" ? "a product of" : "sold by"} ${esc(site.legalName)}, ${esc(site.rcNumber)}, ${esc(site.address)}.
       </td></tr>
     </table>
 
@@ -131,7 +134,7 @@ export function confirmationEmail(order: Order) {
 </body></html>`;
 
   const text = [
-    `Your Interlink reservation is confirmed, ${order.customer.firstName}.`,
+    `Your ${brand.name} reservation is confirmed, ${order.customer.firstName}.`,
     ``,
     `Order number: ${order.id}`,
     `Amount received: ${formatKobo(order.paidKobo)}`,
@@ -141,11 +144,11 @@ export function confirmationEmail(order: Order) {
     ``,
     `View your order: ${orderUrl}`,
     ``,
-    `This is a presale order governed by the Terms of Sale (version ${site.termsVersion}): ${site.url}/terms`,
-    `Questions? Write to ${site.supportEmail} and quote ${order.id}.`,
+    `This is a presale order governed by the Terms of Sale (version ${order.consent.termsVersion}): ${page("/terms")}`,
+    `Questions? Write to ${brand.supportEmail} and quote ${order.id}.`,
   ].join("\n");
 
-  return { subject: `Order ${order.id} confirmed: Interlink presale`, html, text };
+  return { subject: `Order ${order.id} confirmed: ${brand.name} presale`, html, text };
 }
 
 /**
@@ -155,10 +158,11 @@ export function confirmationEmail(order: Order) {
  */
 export async function sendOrderConfirmation(order: Order, opts: { subjectPrefix?: string } = {}) {
   const mail = confirmationEmail(order);
+  const brand = brandOf(order.store);
   const subject = (opts.subjectPrefix ?? "") + mail.subject;
   const message = {
     to: order.customer.email,
-    replyTo: site.supportEmail,
+    replyTo: brand.supportEmail,
     subject,
     html: mail.html,
     text: mail.text,
@@ -169,7 +173,7 @@ export async function sendOrderConfirmation(order: Order, opts: { subjectPrefix?
   const resendKey = process.env.RESEND_API_KEY;
   const resendFrom = process.env.EMAIL_FROM;
   if (resendKey && resendFrom) {
-    await sendWithResend(resendKey, resendFrom, message, order.id);
+    await sendWithResend(resendKey, fromAs(brand.name, resendFrom), message, order.id);
     return;
   }
 
@@ -185,7 +189,7 @@ export async function sendOrderConfirmation(order: Order, opts: { subjectPrefix?
       auth: { user: smtpUser, pass: smtpPass },
     });
     // The mailbox can only send as itself, so the address is always SMTP_USER.
-    await transport.sendMail({ ...message, from: { name: site.name, address: smtpUser } });
+    await transport.sendMail({ ...message, from: { name: brand.name, address: smtpUser } });
     return;
   }
 
@@ -199,7 +203,7 @@ export async function sendOrderConfirmation(order: Order, opts: { subjectPrefix?
     });
     await transport.sendMail({
       // Gmail only sends as the signed-in account, so the address is always GMAIL_USER.
-      from: { name: site.name, address: gmailUser },
+      from: { name: brand.name, address: gmailUser },
       ...message,
     });
     return;
@@ -211,7 +215,13 @@ export async function sendOrderConfirmation(order: Order, opts: { subjectPrefix?
     console.info(`[email] (dev, not sent) to ${order.customer.email}: ${mail.subject}\n${mail.text}`);
     return;
   }
-  await sendWithResend(key, process.env.EMAIL_FROM ?? `${site.name} <onboarding@resend.dev>`, message, order.id);
+  await sendWithResend(key, fromAs(brand.name, process.env.EMAIL_FROM ?? "onboarding@resend.dev"), message, order.id);
+}
+
+/** Same sending address for every store, shown under the store's name: "ArkPlay <orders@…>". */
+function fromAs(name: string, from: string) {
+  const address = from.match(/<([^>]+)>/)?.[1] ?? from.trim();
+  return `${name} <${address}>`;
 }
 
 async function sendWithResend(
