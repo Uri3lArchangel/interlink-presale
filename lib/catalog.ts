@@ -23,7 +23,8 @@ const powerBanks: Product[] = Array.from({ length: 5 }, (_, i) => {
     family: "power",
     line: "Personal PowerBank",
     summary: "Portable power that only unlocks with your fingerprint.",
-    price: 29000 + i * 10000,
+    // TEMP: the 10K is ₦5,000 for live payment testing. Restore to 29000 + i * 10000.
+    price: i === 0 ? 5000 : 29000 + i * 10000,
     image: `/products/power-${i + 1}.jpg`,
     capacity,
   };
