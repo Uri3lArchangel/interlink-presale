@@ -9,6 +9,7 @@ import { assetByKey, looksLikeAddress } from "./crypto-assets";
 import { createQuote, cryptoEnabled, ngnPerUsd, quoteStatus } from "./dextopus";
 import { site } from "./site";
 import { brandOf, type BrandKey } from "./brands";
+import { initializeTransaction, newReference, paystackEnabled, verifyTransaction } from "./paystack";
 
 export type OrderLine = { id: string; name: string; unitPrice: number; quantity: number; image: string };
 
@@ -55,6 +56,14 @@ export type Order = {
     state: "waiting" | "processing" | "completed" | "failed" | "refunded";
     originTxHash?: string;
   };
+  /** Latest Paystack (card, bank, USSD) attempt, if the customer chose it. */
+  paystack?: {
+    reference: string;
+    amountKobo: number;
+    createdAt: string;
+    state: "pending" | "success" | "failed";
+    channel?: string;
+  };
 };
 
 const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I/L
@@ -67,6 +76,7 @@ function orderNumber(prefix: string) {
 const orderKey = (id: string) => `order:${id}`;
 const accountKey = (vaId: string) => `va:${vaId}`;
 const cryptoKey = (requestId: string) => `dx:${requestId}`;
+const paystackKey = (reference: string) => `ps:${reference}`;
 
 export type CheckoutInput = {
   items: { id: string; quantity: number }[];
@@ -231,6 +241,10 @@ export async function reconcile(order: Order): Promise<Order> {
   order.lastReconciledAt = Date.now();
   await kv().set(orderKey(order.id), order);
   try {
+    if (order.paystack?.state === "pending") {
+      const after = await settlePaystack(order.paystack.reference);
+      if (after?.status === "paid") return after;
+    }
     if (order.crypto && order.crypto.state !== "completed" && order.crypto.state !== "refunded") {
       const after = await reconcileCrypto(order.id);
       if (after?.status === "paid") return after;
@@ -340,6 +354,83 @@ export async function handleCryptoWebhook(requestId?: string, depositAddress?: s
   return { ok: true, status: order?.status };
 }
 
+export class PaystackError extends Error {}
+
+/**
+ * Open a Paystack checkout for whatever is still owed on the order. Returns the hosted payment page URL.
+ * Each attempt gets its own reference; the amount expected for it is stored so the payment can be checked.
+ */
+export async function startPaystackPayment(orderId: string) {
+  if (!paystackEnabled()) throw new PaystackError("Card payments aren't available right now.");
+  const result = await withLock(orderId, async () => {
+    const order = await getOrder(orderId);
+    if (!order) throw new PaystackError("Order not found.");
+    if (order.status === "paid") throw new PaystackError("This order is already paid.");
+    if (isExpired(order)) throw new PaystackError("This reservation has lapsed. Please start a new order.");
+    if (order.crypto && (order.crypto.state === "processing" || order.crypto.state === "completed")) {
+      throw new PaystackError("A crypto payment for this order is already being processed.");
+    }
+    const amountKobo = order.totalKobo - order.paidKobo;
+    const reference = newReference(order.id);
+    const { authorizationUrl } = await initializeTransaction({
+      reference,
+      email: order.customer.email,
+      amountKobo,
+      callbackUrl: `${site.url}/api/paystack/callback`,
+      orderId: order.id,
+      store: brandOf(order.store).key,
+    });
+    order.paystack = { reference, amountKobo, createdAt: new Date().toISOString(), state: "pending" };
+    await kv().set(orderKey(order.id), order);
+    await kv().set(paystackKey(reference), order.id);
+    return authorizationUrl;
+  });
+  if (!result) throw new PaystackError("We're busy updating this order. Try again in a moment.");
+  return result;
+}
+
+/**
+ * Verify a Paystack reference with our secret key and, if it succeeded, credit the order with the
+ * amount Paystack actually collected (never the amount the browser or webhook claims).
+ */
+export async function settlePaystack(reference: string): Promise<Order | null> {
+  const orderId = await kv().get<string>(paystackKey(reference));
+  if (!orderId) return null;
+  const tx = await verifyTransaction(reference);
+  const ok = tx.status === "success" && tx.currency === "NGN" && tx.amount > 0;
+  const failed = ["failed", "abandoned", "reversed"].includes(tx.status);
+  await withLock(orderId, async () => {
+    const o = await getOrder(orderId);
+    if (!o?.paystack || o.paystack.reference !== reference) return o;
+    const state = ok ? "success" : failed ? "failed" : "pending";
+    if (o.paystack.state === state) return o;
+    o.paystack.state = state;
+    o.paystack.channel = tx.channel;
+    await kv().set(orderKey(o.id), o);
+    return o;
+  });
+  if (!ok) return getOrder(orderId);
+  const credit = {
+    id: `ps:${reference}`,
+    amount: tx.amount,
+    payer_name: `Paystack (${tx.channel ?? "card"})`,
+    received_at: tx.paidAt ?? new Date().toISOString(),
+  };
+  return (await applyCredits(orderId, [credit])) ?? getOrder(orderId);
+}
+
+export async function orderIdForPaystack(reference: string) {
+  return kv().get<string>(paystackKey(reference));
+}
+
+/** Paystack webhook: only `charge.success` matters, and the reference is re-verified before use. */
+export async function handlePaystackWebhook(event?: string, reference?: string) {
+  if (event !== "charge.success" || !reference) return { ok: true, reason: "ignored" as const };
+  const order = await settlePaystack(reference);
+  if (!order) return { ok: true, reason: "not an order reference" as const };
+  return { ok: true, status: order.status };
+}
+
 /** The subset of an order that is safe to send to the browser. */
 export function publicOrder(order: Order) {
   return {
@@ -358,6 +449,7 @@ export function publicOrder(order: Order) {
     account: { number: order.account.number, name: order.account.name, bank: order.account.bank },
     estimatedDispatch: order.estimatedDispatch,
     cryptoEnabled: cryptoEnabled(),
+    paystackEnabled: paystackEnabled(),
     crypto: order.crypto
       ? {
           assetKey: order.crypto.assetKey,

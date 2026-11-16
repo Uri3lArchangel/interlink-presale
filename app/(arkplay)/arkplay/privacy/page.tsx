@@ -34,7 +34,7 @@ export default function PrivacyPage() {
             <section>
               <h2>Who we share it with</h2>
               <p>
-                Our payment partner Pouch and its banking partners, to create your payment account number and process transfers, and Dextopus, if you pay in crypto;
+                Our payment partners: Pouch and its banking partners, to create your payment account number and process transfers; Paystack, to process card, bank app and USSD payments (Paystack collects your card details directly; we never see or store them); and Dextopus, if you pay in crypto;
                 Google (Gmail), to send order emails; Vercel and Upstash, which host this website and store order records; and delivery partners, at dispatch. We do
                 not sell your data or use it for third-party advertising. Some providers may process data outside Nigeria under
                 safeguards permitted by the NDPA.

@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "How do I pay?",
-    a: `By bank transfer from any Nigerian bank, or in USDC or USDT on the order page. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
+    a: `By bank transfer from any Nigerian bank, by card, bank app or USSD through Paystack, or in USDC or USDT on the order page. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
   },
   {
     q: "Can the price change after I pay?",
@@ -82,7 +82,7 @@ export default function Home() {
           </div>
           <div className="buy-copy">
             <h2 className="h2">Get yours from the first batch.</h2>
-            <p className="lede">One console, ready to play out of the box. Pay by bank transfer or crypto.</p>
+            <p className="lede">One console, ready to play out of the box. Pay by bank transfer, card or crypto.</p>
             <BuyBox />
             <ul className="perks">
               <li>Cancel any time before dispatch for a refund.</li>
@@ -124,7 +124,7 @@ export default function Home() {
         <div className="wrap">
           <div className="section-head">
             <h2 className="h2">Three levels to your console.</h2>
-            <p className="lede">No card needed. One transfer reserves it.</p>
+            <p className="lede">Transfer, card or crypto. One payment reserves it.</p>
           </div>
           <ol className="levels">
             <li>
@@ -137,7 +137,7 @@ export default function Home() {
               <h3>Send the money</h3>
               <p>
                 You get an account number made for your order. Send the exact amount within {site.presale.paymentWindowHours} hours, or pay
-                in USDC or USDT.
+                by card or in USDC or USDT.
               </p>
             </li>
             <li>

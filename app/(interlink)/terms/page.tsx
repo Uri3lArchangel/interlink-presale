@@ -99,7 +99,8 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
         </p>
         <p>
           Payment is by bank transfer to an account number created just for your order by our payment partner, Pouch,
-          You must transfer the exact amount shown, to the account shown for that order, within {P.paymentWindowHours} hours. Unpaid
+          or by card, bank app or USSD through our payment partner, Paystack. Card payments are confirmed only when Paystack approves
+          them; card refunds are made to the card or account used, and timing depends on your bank. For bank transfers, you must transfer the exact amount shown, to the account shown for that order, within {P.paymentWindowHours} hours. Unpaid
           reservations lapse after that time and we may release the stock.
         </p>
         <ul>

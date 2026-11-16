@@ -52,7 +52,7 @@ function Footer() {
         <p className="footer-note">
           Images and video are concept renders; the final console may differ in finish, controls and detail. Prices are in Nigerian naira and include
           VAT where it applies. Espees amounts are a guide at ₦{NGN_PER_ESPEE.toLocaleString("en-NG")} per Espee; you pay in naira by
-          bank transfer, or in crypto. Dispatch dates are estimates. See the <Link href="/arkplay/terms">Terms of Sale</Link> for cancellation and
+          bank transfer or card, or in crypto. Dispatch dates are estimates. See the <Link href="/arkplay/terms">Terms of Sale</Link> for cancellation and
           refund rights.
         </p>
         <div className="footer-top">

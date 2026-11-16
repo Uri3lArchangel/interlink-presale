@@ -9,6 +9,7 @@ import type { PublicOrder } from "@/lib/orders";
 import { site } from "@/lib/site";
 import { brandOf, brandPath } from "@/lib/brands";
 import { CryptoPay } from "@/components/crypto-pay";
+import { PaystackPay } from "@/components/paystack-pay";
 
 function Copy({ value, label }: { value: string; label: string }) {
   const [done, setDone] = useState(false);
@@ -41,12 +42,13 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
   const [order, setOrder] = useState(initial);
   const brand = brandOf(initial.store);
   const [simulating, setSimulating] = useState(false);
-  const [method, setMethod] = useState<"bank" | "crypto">(initial.crypto ? "crypto" : "bank");
+  const [method, setMethod] = useState<"bank" | "card" | "crypto">(initial.crypto ? "crypto" : "bank");
   const methods = [
     "bank" as const,
+    ...(initial.paystackEnabled ? ["card" as const] : []),
     ...(initial.cryptoEnabled && initial.status === "awaiting_payment" ? ["crypto" as const] : []),
   ];
-  const methodLabel = { bank: "Bank transfer", crypto: "Crypto" };
+  const methodLabel = { bank: "Bank transfer", card: "Card", crypto: "Crypto" };
   const outstanding = Math.max(0, order.totalKobo - order.paidKobo);
   const paid = order.status === "paid";
 
@@ -151,7 +153,9 @@ export function OrderView({ initial, token, testMode }: { initial: PublicOrder; 
                   ))}
                 </div>
               )}
-              {method === "crypto" && order.cryptoEnabled && order.status === "awaiting_payment" ? (
+              {method === "card" && order.paystackEnabled ? (
+                <PaystackPay order={order} token={token} testMode={testMode} />
+              ) : method === "crypto" && order.cryptoEnabled && order.status === "awaiting_payment" ? (
                 <CryptoPay order={order} token={token} testMode={testMode} onUpdate={setOrder} />
               ) : (
               <div className="case transfer">

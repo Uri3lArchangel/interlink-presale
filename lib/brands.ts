@@ -55,7 +55,7 @@ export const brands: Record<BrandKey, Brand> = {
     batch: "Batch 01",
     // TODO: confirm with manufacturing.
     estimatedDispatch: "Q2 2027",
-    termsVersion: "arkplay-2026-11-15.1",
+    termsVersion: "arkplay-2026-11-16.1",
     goods: "console",
     email: {
       logo: "arkplay-logo.png",

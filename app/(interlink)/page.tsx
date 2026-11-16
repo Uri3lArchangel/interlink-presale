@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "How do I pay?",
-    a: `By bank transfer from any Nigerian bank. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. You can also pay in USDC or USDT on the order page. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
+    a: `By bank transfer from any Nigerian bank, or by card, bank app or USSD through Paystack. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. You can also pay in USDC or USDT on the order page. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
   },
   {
     q: "Can the price change after I pay?",
@@ -46,8 +46,8 @@ const reasons = [
     icon: "M8 20a12 12 0 1 0 4-9M8 6v6h6",
   },
   {
-    title: "Pay by bank transfer",
-    body: "No card needed. You get an account number made for your order alone, or you can pay in crypto.",
+    title: "Pay your way",
+    body: "Bank transfer to an account made for your order alone, card through Paystack, or crypto.",
     icon: "M5 16h30M8 16v14M16 16v14M24 16v14M32 16v14M4 34h32M20 4 4 12h32Z",
   },
   {

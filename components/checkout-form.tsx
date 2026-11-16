@@ -184,14 +184,14 @@ export function CheckoutForm({ store = "interlink", emptyHref, emptyLabel }: { s
             <strong>{formatNaira(total)}</strong>
           </div>
           <p className="small" style={{ textAlign: "right" }}>
-            ≈ {formatEspees(total)}. Pay in naira by bank transfer, or in crypto.
+            ≈ {formatEspees(total)}. Pay in naira by bank transfer or card, or in crypto.
           </p>
         </div>
         <button className="btn btn-primary btn-block" style={{ marginTop: 24 }} disabled={busy || !ready}>
           {busy ? "Creating your payment account…" : "Continue to payment"}
         </button>
         <p className="small" style={{ marginTop: 14 }}>
-          Next, you’ll get a dedicated account number for this order, processed by our payment partner Pouch. You can also choose to pay in crypto.
+          Next, choose how to pay: a bank transfer to an account made for this order (processed by Pouch), card, bank app or USSD (processed by Paystack), or crypto.
         </p>
       </aside>
     </form>
