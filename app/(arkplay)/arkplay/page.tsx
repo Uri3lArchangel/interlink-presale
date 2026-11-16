@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BuyBox, Teaser } from "@/components/arkplay/home";
-import { arkplayConsole as consoleProduct, formatNaira } from "@/lib/catalog";
+import { BuildScene, BuyBox, HeroTurn } from "@/components/arkplay/home";
 import { brands } from "@/lib/brands";
 import { site } from "@/lib/site";
 
@@ -34,114 +33,72 @@ const faqs = [
   },
 ];
 
-const parts = [
-  { colour: "sun", title: "Two grips", body: "A stick, a D-pad and four face buttons, split across both hands like a proper handheld." },
-  { colour: "palm", title: "A wide screen", body: "Sits in the middle, so stories and games have room to breathe." },
-  { colour: "berry", title: "A built-in battery", body: "Charge it up and take it to church, school or the back seat of the car." },
-];
-
 export default function Home() {
   return (
     <>
-      <section className="hero">
-        <div className="wrap hero-grid">
-          <div className="hero-copy">
-            <span className="chip">
-              <span className="led" aria-hidden="true" />
-              {brand.batch} presale is open
-            </span>
-            <h1 className="h1">Bible stories you can play.</h1>
-            <p className="lede">
-              ArkPlay is a handheld console made for your blessed hands. A new way to experience Scripture, for kids, teens and anyone
-              who still loves a good game.
-            </p>
-            <div className="hero-actions">
-              <a href="#buy" className="btn btn-primary btn-press">
-                Reserve for {formatNaira(consoleProduct.price)}
-              </a>
-              <a href="#inside" className="btn btn-ghost">
-                See inside
-              </a>
-            </div>
-          </div>
-          <Teaser />
+      <section className="hero" aria-label="ArkPlay">
+        <HeroTurn />
+      </section>
+
+      <section className="statement">
+        <div className="wrap">
+          <p>
+            A handheld console built around Scripture. <span>Stories you step into, games you play with your hands, and a
+            screen the whole family can gather round.</span>
+          </p>
         </div>
       </section>
 
-      <section className="section" id="buy">
+      <section id="inside" aria-labelledby="inside-title">
+        <div className="wrap section-head">
+          <h2 className="h2" id="inside-title">Small enough to carry. Built to be played.</h2>
+          <p className="lede">Take it apart, put it back together. Scroll to see what’s inside.</p>
+        </div>
+        <BuildScene />
+        <p className="small wrap note-center">Concept render. Final specifications are confirmed before dispatch.</p>
+      </section>
+
+      <section className="section" id="buy" aria-labelledby="buy-title">
         <div className="wrap buy-grid">
-          <div className="sticker buy-media">
+          <div className="buy-media">
             <Image
               src="/media/arkplay-console.jpg"
               alt="ArkPlay console, front view, with the ArkPlay logo on screen over mountains and palm trees"
               width={1600}
               height={750}
-              priority
-              sizes="(max-width: 900px) 100vw, 58vw"
+              sizes="(max-width: 900px) 100vw, 56vw"
             />
           </div>
-          <div className="buy-copy">
-            <h2 className="h2">Get yours from the first batch.</h2>
-            <p className="lede">One console, ready to play out of the box. Pay by bank transfer, card or crypto.</p>
+          <div className="buy-panel glass">
+            <p className="small">{brand.batch} · presale</p>
+            <h2 className="h3" id="buy-title">ArkPlay</h2>
             <BuyBox />
             <ul className="perks">
               <li>Cancel any time before dispatch for a refund.</li>
               <li>Estimated dispatch: {brand.estimatedDispatch}.</li>
-              <li>Delivery is quoted before we ship.</li>
+              <li>Pay by bank transfer, card or crypto. Delivery is quoted before we ship.</li>
             </ul>
           </div>
         </div>
       </section>
 
-      <section className="section section-night" id="inside">
+      <section className="section" id="how" aria-labelledby="how-title">
         <div className="wrap">
           <div className="section-head">
-            <h2 className="h2">Small enough to carry. Built to be played.</h2>
-            <p className="lede">A compact gaming experience, taken apart so you can see what you’re getting.</p>
+            <h2 className="h2" id="how-title">Three steps to yours.</h2>
           </div>
-          <div className="inside-img">
-            <Image
-              src="/media/arkplay-inside.jpg"
-              alt="ArkPlay taken apart: two controller grips, the screen, the main circuit board and the battery"
-              width={1600}
-              height={875}
-              sizes="(max-width: 1200px) 100vw, 1100px"
-            />
-          </div>
-          <ul className="parts">
-            {parts.map((p) => (
-              <li key={p.title} data-c={p.colour}>
-                <h3>{p.title}</h3>
-                <p>{p.body}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="small inside-note">Concept render. Final specifications are confirmed before dispatch.</p>
-        </div>
-      </section>
-
-      <section className="section" id="how">
-        <div className="wrap">
-          <div className="section-head">
-            <h2 className="h2">Three levels to your console.</h2>
-            <p className="lede">Transfer, card or crypto. One payment reserves it.</p>
-          </div>
-          <ol className="levels">
-            <li>
-              <span className="lv">Lv 1</span>
+          <ol className="steps-glass">
+            <li className="glass">
               <h3>Check out</h3>
               <p>Tell us who you are and where to deliver. You lock in today’s presale price.</p>
             </li>
-            <li>
-              <span className="lv">Lv 2</span>
-              <h3>Send the money</h3>
+            <li className="glass">
+              <h3>Pay</h3>
               <p>
-                You get an account number made for your order. Send the exact amount within {site.presale.paymentWindowHours} hours, or pay
-                by card or in crypto.
+                By bank transfer to an account made for your order, by card, or in crypto, within {site.presale.paymentWindowHours} hours.
               </p>
             </li>
-            <li>
-              <span className="lv">Lv 3</span>
+            <li className="glass">
               <h3>Get your order number</h3>
               <p>We confirm by email as soon as the money lands, and write again before your ArkPlay ships.</p>
             </li>
@@ -149,10 +106,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section section-tint" id="faq">
+      <section className="section" id="faq" aria-labelledby="faq-title">
         <div className="wrap faq">
           <div className="section-head">
-            <h2 className="h2">Questions? Answers.</h2>
+            <h2 className="h2" id="faq-title">Questions</h2>
             <p className="lede">
               The full details are in the{" "}
               <Link className="link" href="/arkplay/terms">

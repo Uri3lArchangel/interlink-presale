@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
-import { Bricolage_Grotesque, Silkscreen } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { CartProvider } from "@/components/cart";
 import { Drawer, Header } from "@/components/arkplay/chrome";
 import { brands } from "@/lib/brands";
@@ -10,8 +10,7 @@ import "./arkplay.css";
 
 const brand = brands.arkplay;
 
-const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-body" });
-const pixel = Silkscreen({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-pixel" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-body" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -20,11 +19,11 @@ export const metadata: Metadata = {
   openGraph: { title: "ArkPlay presale", images: ["/media/arkplay-console.jpg"] },
 };
 
-export const viewport: Viewport = { themeColor: "#0e0b1f" };
+export const viewport: Viewport = { themeColor: "#000000", colorScheme: "dark" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-NG" className={`${bricolage.variable} ${pixel.variable}`}>
+    <html lang="en-NG" className={manrope.variable}>
       <body>
         <CartProvider store="arkplay">
           {testPrice > 0 && (
