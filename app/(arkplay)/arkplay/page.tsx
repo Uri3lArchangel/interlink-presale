@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "How do I pay?",
-    a: `By bank transfer from any Nigerian bank, by card, bank app or USSD through Paystack, or in USDC or USDT on the order page. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
+    a: `By bank transfer from any Nigerian bank, by card, bank app or USSD through Paystack, or in crypto (USDT, USDC, BTC, ETH, SOL and more) on the order page. A ${site.transactionFeePct}% transaction fee is added at checkout and shown before you pay. Checkout gives you an account number that belongs to your order alone. Send the exact total and your order confirms on its own, usually within a minute.`,
   },
   {
     q: "Can the price change after I pay?",
@@ -137,7 +137,7 @@ export default function Home() {
               <h3>Send the money</h3>
               <p>
                 You get an account number made for your order. Send the exact amount within {site.presale.paymentWindowHours} hours, or pay
-                by card or in USDC or USDT.
+                by card or in crypto.
               </p>
             </li>
             <li>

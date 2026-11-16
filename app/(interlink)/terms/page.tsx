@@ -125,13 +125,16 @@ const sections: { id: string; title: string; body: React.ReactNode }[] = [
           </li>
         </ul>
         <p className="key">
-          <strong>Paying in crypto.</strong> Where offered, you may pay in USDC or USDT through our payment partner, Dextopus. The
-          naira total is converted to US dollars at the rate shown when you request a payment address, and that address and amount
-          are valid only until the time shown. You must send the exact amount, in the coin and on the network shown, in one
-          transfer. Network fees are yours to pay. A different amount is returned automatically to the refund wallet you give us. We
+          <strong>Paying in crypto.</strong> Where offered, you may pay in any coin and network offered at checkout through our payment partner,
+          Dextopus, including stablecoins such as USDC and USDT and other coins such as BTC, ETH and SOL. The naira total is
+          converted to US dollars at the rate shown when you request a payment address, and the amount of your chosen coin is set at
+          that moment; the address and amount are valid only until the time shown. You must send at least the amount shown, in the
+          coin and on the network shown, in one transfer. Network fees are yours to pay. Too little is returned in full, and any
+          excess is returned automatically, to the refund wallet you give us. If your coin&rsquo;s price moves before your payment
+          is processed and the conversion cannot complete, your payment is returned to that wallet and your order stays unpaid. We
           are not responsible for coins sent on the wrong network, to the wrong address or in the wrong token, and may not be able to
-          recover them. Refunds on crypto orders are paid in USDC or USDT to your refund wallet, for the US dollar value we
-          received, less any network fees; we do not refund in naira for crypto payments. Accepting crypto is not investment
+          recover them. Refunds on crypto orders are paid in USDC or USDT, not in the coin you sent, to a wallet you name, for the
+          US dollar value we received, less any network fees; we do not refund in naira for crypto payments. Accepting crypto is not investment
           advice, and nothing in your order is a digital asset or security.
         </p>
         <p>

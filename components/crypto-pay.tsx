@@ -2,7 +2,7 @@
 
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
-import { CRYPTO_ASSETS, assetByKey, formatUnits } from "@/lib/crypto-assets";
+import { DEFAULT_CHOICE, addressHint, formatUnits, isStablecoin, type CryptoChain, type Vm } from "@/lib/crypto-assets";
 import { formatKobo } from "@/lib/catalog";
 import type { PublicOrder } from "@/lib/orders";
 
@@ -34,6 +34,18 @@ const stateText: Record<NonNullable<PublicOrder["crypto"]>["state"], string> = {
   refunded: "Your payment didn’t match the amount and was refunded to your wallet. Get a new address to try again.",
 };
 
+type Token = { key: string; symbol: string; name?: string; address: string; decimals: number; vm: Vm; network: string; chainId: number };
+
+const selectStyle = {
+  height: 52,
+  borderRadius: 12,
+  padding: "0 14px",
+  background: "#1c1c1e",
+  color: "var(--on-dark)",
+  border: "1px solid #3a3a3c",
+  fontSize: 16,
+} as const;
+
 export function CryptoPay({
   order,
   token,
@@ -46,15 +58,49 @@ export function CryptoPay({
   onUpdate: (o: PublicOrder) => void;
 }) {
   const q = order.crypto;
-  const current = q ? assetByKey(q.assetKey) : undefined;
-  const [assetKey, setAssetKey] = useState(q?.assetKey ?? CRYPTO_ASSETS[0].key);
+  const [chains, setChains] = useState<CryptoChain[] | null>(null);
+  const [tokens, setTokens] = useState<Token[] | null>(null);
+  const [chainId, setChainId] = useState<number>(DEFAULT_CHOICE.chainId);
+  const [tokenAddress, setTokenAddress] = useState<string>(DEFAULT_CHOICE.address);
   const [refundTo, setRefundTo] = useState(q?.refundTo ?? "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
   const expired = q?.expiresAt ? Date.parse(q.expiresAt) < Date.now() : false;
-  const showQuote = q && current && !expired && (q.state === "waiting" || q.state === "processing");
-  const asset = assetByKey(assetKey)!;
+  const showQuote = q && !expired && (q.state === "waiting" || q.state === "processing");
+  const chain = chains?.find((c) => c.chainId === chainId);
+  const coin = tokens?.find((t) => t.address.toLowerCase() === tokenAddress.toLowerCase());
+  const vm: Vm = coin?.vm ?? chain?.vm ?? "evm";
+
+  // Load every network Dextopus supports, then the coins on the chosen one.
+  useEffect(() => {
+    if (showQuote) return;
+    let stop = false;
+    fetch("/api/crypto/options")
+      .then((r) => r.json())
+      .then((d) => !stop && (d.chains ? setChains(d.chains) : setError(d.error ?? "Couldn’t load networks.")))
+      .catch(() => !stop && setError("Couldn’t load networks. Check your connection and try again."));
+    return () => {
+      stop = true;
+    };
+  }, [showQuote]);
+  useEffect(() => {
+    if (showQuote) return;
+    let stop = false;
+    setTokens(null);
+    fetch(`/api/crypto/options?chainId=${chainId}`)
+      .then((r) => r.json())
+      .then((d: { tokens?: Token[]; error?: string }) => {
+        if (stop) return;
+        if (!d.tokens) return setError(d.error ?? "Couldn’t load coins.");
+        setTokens(d.tokens);
+        setTokenAddress((cur) => (d.tokens!.some((t) => t.address.toLowerCase() === cur.toLowerCase()) ? cur : (d.tokens![0]?.address ?? "")));
+      })
+      .catch(() => !stop && setError("Couldn’t load coins. Check your connection and try again."));
+    return () => {
+      stop = true;
+    };
+  }, [chainId, showQuote]);
 
   useEffect(() => {
     if (!showQuote) return setQr(null);
@@ -70,7 +116,7 @@ export function CryptoPay({
       const res = await fetch(`/api/orders/${order.id}/crypto`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, asset: assetKey, refundTo }),
+        body: JSON.stringify({ token, chainId, address: tokenAddress, refundTo }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
@@ -93,15 +139,16 @@ export function CryptoPay({
   }
 
   if (showQuote) {
-    const amount = formatUnits(q.amountIn, current.decimals);
+    const amount = formatUnits(q.amountIn, q.decimals);
+    const volatile = !isStablecoin(q.symbol);
     return (
       <div className="case transfer">
         <p className="small">Send exactly</p>
         <p className="amount">
-          {amount} {current.symbol}
+          {amount} {q.symbol}
         </p>
         <p className="small" style={{ marginTop: 10 }}>
-          on <strong style={{ color: "var(--on-dark)" }}>{current.network}</strong> · covers {formatKobo(order.totalKobo)} at ₦
+          on <strong style={{ color: "var(--on-dark)" }}>{q.network}</strong> · covers {formatKobo(order.totalKobo)} at ₦
           {q.ngnPerUsd.toLocaleString("en-NG")}/$
         </p>
         <div style={{ display: "flex", gap: 20, alignItems: "center", marginTop: 24, flexWrap: "wrap" }}>
@@ -120,7 +167,7 @@ export function CryptoPay({
             <div>
               <dt>Amount</dt>
               <dd>
-                {amount} {current.symbol}
+                {amount} {q.symbol}
                 <CopyBtn value={amount} label="amount" />
               </dd>
             </div>
@@ -131,9 +178,15 @@ export function CryptoPay({
         </p>
         <ul className="tips">
           <li>
-            Send <strong>only {current.symbol}</strong> on <strong>{current.network}</strong>. Other coins or networks can be lost.
+            Send <strong>only {q.symbol}</strong> on <strong>{q.network}</strong>. Other coins or networks can be lost.
           </li>
-          <li>Send the exact amount in one transfer. A different amount is refunded to your wallet automatically.</li>
+          {volatile && (
+            <li>
+              {q.symbol}’s price moves, so send it now. If the price moves too far before your payment lands, the swap can’t complete and
+              your {q.symbol} is refunded to your wallet.
+            </li>
+          )}
+          <li>Send at least this amount in one transfer. Too little is refunded in full; anything extra is refunded automatically.</li>
           <li>Network fees are paid by you, on top of this amount.</li>
           {q.expiresAt && (
             <li>
@@ -159,7 +212,7 @@ export function CryptoPay({
 
   return (
     <div className="case transfer">
-      <p className="small">Pay with stablecoins</p>
+      <p className="small">Pay with crypto</p>
       <p className="amount" style={{ fontSize: "clamp(32px,4vw,44px)" }}>
         {formatKobo(order.totalKobo)}
       </p>
@@ -170,25 +223,38 @@ export function CryptoPay({
       )}
       <div style={{ display: "grid", gap: 16, marginTop: 24 }}>
         <label style={{ display: "grid", gap: 6 }}>
-          <span className="small">Coin and network</span>
-          <select
-            value={assetKey}
-            onChange={(e) => setAssetKey(e.target.value)}
-            style={{ height: 52, borderRadius: 12, padding: "0 14px", background: "#1c1c1e", color: "var(--on-dark)", border: "1px solid #3a3a3c", fontSize: 16 }}
-          >
-            {CRYPTO_ASSETS.map((a) => (
-              <option key={a.key} value={a.key}>
-                {a.symbol} on {a.network}
+          <span className="small">Network</span>
+          <select value={chainId} onChange={(e) => setChainId(Number(e.target.value))} disabled={!chains} style={selectStyle}>
+            {!chains && <option>Loading networks…</option>}
+            {chains?.map((c) => (
+              <option key={c.chainId} value={c.chainId}>
+                {c.name}
               </option>
             ))}
           </select>
         </label>
         <label style={{ display: "grid", gap: 6 }}>
-          <span className="small">Your {asset.network} wallet address, for refunds</span>
+          <span className="small">Coin</span>
+          <select value={tokenAddress} onChange={(e) => setTokenAddress(e.target.value)} disabled={!tokens || !tokens.length} style={selectStyle}>
+            {!tokens && <option>Loading coins…</option>}
+            {tokens && !tokens.length && <option>No coins available on this network</option>}
+            {tokens?.map((t) => (
+              <option key={t.key} value={t.address}>
+                {t.symbol}
+                {t.name && t.name !== t.symbol ? ` · ${t.name}` : ""}
+              </option>
+            ))}
+          </select>
+          {coin && !isStablecoin(coin.symbol) && (
+            <span className="small">{coin.symbol}’s price moves. You’ll see the exact amount to send, valid for a short time.</span>
+          )}
+        </label>
+        <label style={{ display: "grid", gap: 6 }}>
+          <span className="small">Your {chain?.name ?? ""} wallet address, for refunds</span>
           <input
             value={refundTo}
             onChange={(e) => setRefundTo(e.target.value)}
-            placeholder={asset.vm === "evm" ? "0x…" : asset.vm === "svm" ? "Solana address" : "T…"}
+            placeholder={addressHint(vm)}
             spellCheck={false}
             autoComplete="off"
             style={{ height: 52, borderRadius: 12, padding: "0 14px", background: "#1c1c1e", color: "var(--on-dark)", border: "1px solid #3a3a3c", fontSize: 15 }}
@@ -200,7 +266,7 @@ export function CryptoPay({
             {error}
           </p>
         )}
-        <button className="btn btn-primary" onClick={getAddress} disabled={busy || !refundTo.trim()}>
+        <button className="btn btn-primary" onClick={getAddress} disabled={busy || !refundTo.trim() || !coin}>
           {busy ? "Getting your address…" : "Get payment address"}
         </button>
       </div>

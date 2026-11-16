@@ -5,7 +5,8 @@ import { transactionFee } from "./pricing";
 import { kv, withLock } from "./store";
 import { listCreditsFor, openCollectionAccount, traceInboundTransfer, type InboundCredit } from "./pouch";
 import { sendOrderConfirmation } from "./email";
-import { assetByKey, looksLikeAddress } from "./crypto-assets";
+import { legacyAsset, looksLikeAddress, type CryptoAsset } from "./crypto-assets";
+import { resolveAsset } from "./crypto-catalog";
 import { createQuote, cryptoEnabled, ngnPerUsd, quoteStatus } from "./dextopus";
 import { site } from "./site";
 import { brandOf, type BrandKey } from "./brands";
@@ -45,7 +46,13 @@ export type Order = {
   /** Latest crypto quote, if the customer chose to pay in crypto. */
   crypto?: {
     requestId: string;
-    assetKey: string;
+    assetKey: string; // `${chainId}:${address}`, or a short legacy key on older orders
+    /** What the customer pays with. Absent on older orders, which use a legacy assetKey. */
+    symbol?: string;
+    network?: string;
+    chainId?: number;
+    tokenAddress?: string;
+    decimals?: number;
     depositAddress: string;
     amountIn: string; // smallest unit of the chosen token
     usdcOut: string; // smallest unit of USDC (6 dp) we receive
@@ -263,10 +270,16 @@ export class CryptoError extends Error {}
  * Create (or replace) a crypto quote for an unpaid order. The naira total is converted to USDC at the
  * business-set rate, and Dextopus works out exactly how much of the customer's token to send.
  */
-export async function startCryptoPayment(orderId: string, assetKey: string, refundTo: string) {
+export async function startCryptoPayment(orderId: string, choice: { chainId: number; address: string }, refundTo: string) {
   if (!cryptoEnabled()) throw new CryptoError("Crypto payments aren't available right now.");
-  const asset = assetByKey(assetKey);
-  if (!asset) throw new CryptoError("Choose a supported coin and network.");
+  let asset: CryptoAsset | undefined;
+  try {
+    asset = await resolveAsset(Number(choice.chainId), String(choice.address ?? ""));
+  } catch (err) {
+    console.error("[crypto] token list unavailable", err);
+    throw new CryptoError("We couldn't load the list of coins just now. Try again in a moment.");
+  }
+  if (!asset) throw new CryptoError("That coin isn't supported on that network. Choose another.");
   refundTo = refundTo.trim();
   if (!looksLikeAddress(asset.vm, refundTo)) {
     throw new CryptoError(`That doesn't look like a ${asset.network} wallet address. Check it and try again.`);
@@ -290,6 +303,11 @@ export async function startCryptoPayment(orderId: string, assetKey: string, refu
     order.crypto = {
       requestId: quote.requestId,
       assetKey: asset.key,
+      symbol: asset.symbol,
+      network: asset.network,
+      chainId: asset.chainId,
+      tokenAddress: asset.address,
+      decimals: asset.decimals,
       depositAddress: quote.depositAddress,
       amountIn: quote.amountIn,
       usdcOut: quote.usdcOut,
@@ -319,7 +337,7 @@ export async function reconcileCrypto(orderId: string): Promise<Order | null> {
     const credit = {
       id: order.crypto.requestId,
       amount: order.totalKobo - order.paidKobo,
-      payer_name: `Crypto (${assetByKey(order.crypto.assetKey)?.symbol ?? "stablecoin"})`,
+      payer_name: `Crypto (${cryptoAssetOf(order.crypto)?.symbol ?? "crypto"} on ${cryptoAssetOf(order.crypto)?.network ?? "chain"})`,
       received_at: new Date().toISOString(),
     };
     const updated = await withLock(orderId, async () => {
@@ -431,6 +449,13 @@ export async function handlePaystackWebhook(event?: string, reference?: string) 
   return { ok: true, status: order.status };
 }
 
+/** What a crypto quote is paid in, from the order itself or, for older orders, the legacy list. */
+function cryptoAssetOf(c: NonNullable<Order["crypto"]>) {
+  if (c.symbol && c.decimals !== undefined) return { symbol: c.symbol, network: c.network ?? "", decimals: c.decimals };
+  const legacy = legacyAsset(c.assetKey);
+  return legacy && { symbol: legacy.symbol, network: legacy.network, decimals: legacy.decimals };
+}
+
 /** The subset of an order that is safe to send to the browser. */
 export function publicOrder(order: Order) {
   return {
@@ -453,6 +478,9 @@ export function publicOrder(order: Order) {
     crypto: order.crypto
       ? {
           assetKey: order.crypto.assetKey,
+          symbol: cryptoAssetOf(order.crypto)?.symbol ?? "crypto",
+          network: cryptoAssetOf(order.crypto)?.network ?? "",
+          decimals: cryptoAssetOf(order.crypto)?.decimals ?? 6,
           depositAddress: order.crypto.depositAddress,
           amountIn: order.crypto.amountIn,
           usdcOut: order.crypto.usdcOut,
